@@ -1,0 +1,52 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+    background-color: #f0f0f0;
+}
+
+.nav-menu, .sub-nav {
+    background-color: #e0e0e0;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+
+.nav-menu a, .sub-nav a {
+    margin-right: 10px;
+    text-decoration: none;
+    color: #333;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: white;
+}
+
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+th {
+    background-color: #f4f4f4;
+}
+
+.summary {
+    margin-top: 20px;
+    background-color: #e0e0e0;
+    padding: 10px;
+}
+
+.date-range {
+    margin-bottom: 20px;
+}
+
+.profit {
+    color: green;
+}
+
+.loss {
+    color: red;
+}
