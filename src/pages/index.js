@@ -17,48 +17,20 @@ export default function Home() {
   return (
     <>
       <Head>
-        <meta charset="UTF-8"/>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-        <title>股票交易紀錄</title>
-        <link rel="stylesheet" href="/css/main.css"></link>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>股票系統首頁</title>
+        <link rel="stylesheet" href="/css/mainpage.css"></link>
       </Head>
       <main>
-        <nav class="nav-menu">
-          <a href="#">證券交易</a>
-        </nav>
-
-        <nav class="sub-nav">
-            <a href="#">未實現損益紀錄</a>
-            <a href="#">已實現損益紀錄</a>
-        </nav>
-        <table id="stock-table">
-            <thead>
-                <tr>
-                    <th>transaction_date</th>
-                    <th>stock_id</th>
-                    <th>stock_name</th>
-                    <th>transaction_price</th>
-                    <th>investment_cost</th>
-                </tr>
-            </thead>
-            <tbody>
-              {UGLData.map((item) => (
-                <tr>
-                  <td>{item.transaction_date}</td>
-                  <td>{item.stock_id}</td>
-                  <td>{item.stock_name}</td>
-                  <td>{item.transaction_price}</td>
-                  <td>{item.investment_cost}</td>
-                </tr>
-              ))}
-            </tbody>
-        </table>
-
-        <div class="summary">
-            <p>投資成本：<span id="total-cost">20,548</span></p>
-            <p>帳面收入：<span id="total-income">21,027</span></p>
-            <p>損益：<span id="total-profit-loss">479</span></p>
-            <p>報酬率：<span id="return-rate">2.33%</span></p>
+        <div class="container">
+        <div class="container">
+        <h1>證券交易系統 - 首頁</h1>
+          <div class="links">
+            <a href="/unrealized_gains_losses" class="link-button">未實現損益記錄</a>
+            <a href="/realized_gains_losses" class="link-button">已實現損益記錄</a>
+            </div>
+          </div>
         </div>
       </main>
     </>
