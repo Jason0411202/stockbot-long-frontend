@@ -44,7 +44,7 @@ export default function Home(props) {
             </thead>
             <tbody>
               {UGLData.map((item) => (
-                <tr>
+                <tr key={item.id}>
                   <td>{item.transaction_date}</td>
                   <td>{item.stock_id}</td>
                   <td>{item.stock_name}</td>
