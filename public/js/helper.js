@@ -1,6 +1,6 @@
 export function getUnrealizedGainsLossesData(props) {
   const REACT_APP_backendServer = props.REACT_APP_backendServer;
-  return fetch('http://' + REACT_APP_backendServer +'/api/get_unrealized_gains_losses')
+  return fetch('https://' + REACT_APP_backendServer +'/api/get_unrealized_gains_losses')
   .then(response => {
     if (!response.ok) {
       throw new Error('獲取 response 失敗');
@@ -18,7 +18,7 @@ export function getUnrealizedGainsLossesData(props) {
 
 export function getRealizedGainsLossesData(props) {
   const REACT_APP_backendServer = props.REACT_APP_backendServer;
-  return fetch('http://' + REACT_APP_backendServer +'/api/get_realized_gains_losses')
+  return fetch('https://' + REACT_APP_backendServer +'/api/get_realized_gains_losses')
   .then(response => {
     if (!response.ok) {
       throw new Error('獲取 response 失敗');
