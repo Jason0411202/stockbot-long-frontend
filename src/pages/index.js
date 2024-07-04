@@ -3,11 +3,11 @@ import React from "react";
 import Head from "next/head";
 import * as mainJS from "@/../public/js/helper.js";
 
-export default function Home() {
+export default function Home(props) {
   const [UGLData, GetUGLData] = React.useState([{transaction_date: "Backend Unreachable", stock_id: "Backend Unreachable", stock_name: "Backend Unreachable", transaction_price: "Backend Unreachable", investment_cost: "Backend Unreachable"}]);
 
   React.useEffect(() => {
-    const data = mainJS.getUnrealizedGainsLossesData();
+    const data = mainJS.getUnrealizedGainsLossesData(props);
     data.then((result) => {
       GetUGLData(result);
     });

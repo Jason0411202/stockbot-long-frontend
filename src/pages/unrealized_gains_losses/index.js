@@ -3,11 +3,11 @@ import React from "react";
 import Head from "next/head";
 import * as mainJS from "@/../public/js/helper.js";
 
-export default function Home() {
+export default function Home(props) {
   const [UGLData, GetUGLData] = React.useState([{transaction_date: "Backend Unreachable", stock_id: "Backend Unreachable", stock_name: "Backend Unreachable", transaction_price: "Backend Unreachable", investment_cost: "Backend Unreachable"}]);
 
   React.useEffect(() => {
-    const data = mainJS.getUnrealizedGainsLossesData();
+    const data = mainJS.getUnrealizedGainsLossesData(props);
     data.then((result) => {
       GetUGLData(result);
     });
@@ -64,4 +64,16 @@ export default function Home() {
       </main>
     </>
   );
+}
+
+// getStaticProps 是一個 next.js 中內建的函式
+// 目的是取得靜態變數，並且將資料傳遞給 default function
+export async function getStaticProps() {
+  // 回傳一個 props 物件，這個物件中包含了兩個 key-value pair
+  // 這個物件會被傳遞給 default function
+  return {
+    props: {
+      REACT_APP_backendServer: process.env.REACT_APP_backendServer,
+    }
+  };
 }
