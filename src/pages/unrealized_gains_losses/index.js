@@ -19,19 +19,17 @@ export default function Home(props) {
       <Head>
         <meta charset="UTF-8"/>
         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-        <title>股票交易紀錄</title>
+        <title>長線股票模擬交易系統</title>
         <link rel="stylesheet" href="/css/main.css"></link>
       </Head>
       <main>
-        <nav class="nav-menu">
-          <a href="#">證券交易</a>
+      <div class="container">
+        <nav>
+            <a href="/">首頁</a>
+            <a href="/unrealized_gains_losses">未實現損益紀錄</a>
+            <a href="/realized_gains_losses">已實現損益紀錄</a>
         </nav>
-
-        <nav class="sub-nav">
-          <a href="/">首頁</a>
-          <a href="/unrealized_gains_losses">未實現損益紀錄</a>
-          <a href="/realized_gains_losses">已實現損益紀錄</a>
-        </nav>
+        <h1>長線股票模擬交易系統 (未實現損益)</h1>
         <table id="stock-table">
             <thead>
                 <tr>
@@ -54,13 +52,14 @@ export default function Home(props) {
               ))}
             </tbody>
         </table>
-
         <div class="summary">
             <p>投資成本：<span id="total-cost">-</span></p>
             <p>帳面收入：<span id="total-income">-</span></p>
             <p>損益：<span id="total-profit-loss">-</span></p>
             <p>報酬率：<span id="return-rate">-</span></p>
         </div>
+      </div>
+      <div class="geometric-bg"></div>
       </main>
     </>
   );

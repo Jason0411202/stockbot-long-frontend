@@ -1,52 +1,163 @@
-body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 20px;
-    background-color: #f0f0f0;
-}
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto:wght@300;400;700&display=swap');
 
-.nav-menu, .sub-nav {
-    background-color: #e0e0e0;
-    padding: 10px;
-    margin-bottom: 10px;
-}
+        :root {
+            --bg-color: #000000;
+            --primary-color: #00ffff;
+            --secondary-color: #ff00ff;
+            --text-color: #ffffff;
+            --table-bg: rgba(0, 255, 255, 0.1);
+        }
 
-.nav-menu a, .sub-nav a {
-    margin-right: 10px;
-    text-decoration: none;
-    color: #333;
-}
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-table {
-    width: 100%;
-    border-collapse: collapse;
-    background-color: white;
-}
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
 
-th, td {
-    border: 1px solid #ddd;
-    padding: 8px;
-    text-align: left;
-}
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
 
-th {
-    background-color: #f4f4f4;
-}
+        nav {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            font-family: 'Orbitron', sans-serif;
+        }
 
-.summary {
-    margin-top: 20px;
-    background-color: #e0e0e0;
-    padding: 10px;
-}
+        nav a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
 
-.date-range {
-    margin-bottom: 20px;
-}
+        nav a:hover {
+            color: var(--secondary-color);
+            text-shadow: 0 0 10px var(--secondary-color);
+        }
 
-.profit {
-    color: green;
-}
+        h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.5rem;
+            text-align: center;
+            margin-bottom: 2rem;
+            animation: neonText 1.5s infinite alternate;
+        }
 
-.loss {
-    color: red;
-}
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin-bottom: 2rem;
+            background-color: var(--table-bg);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.2);
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid rgba(0, 255, 255, 0.2);
+        }
+
+        th {
+            background-color: rgba(0, 255, 255, 0.2);
+            color: var(--primary-color);
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        tr:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        td {
+            font-size: 1.1rem;
+            color: #e0e0e0;
+        }
+
+        .summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            background-color: rgba(255, 255, 255, 0.05);
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.1);
+        }
+
+        .summary p {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 1.1rem;
+        }
+
+        .summary span {
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .geometric-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.05;
+        }
+
+        .geometric-bg::before,
+        .geometric-bg::after {
+            content: '';
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            border: 2px solid var(--secondary-color);
+            animation: rotate 30s linear infinite;
+        }
+
+        .geometric-bg::before {
+            top: 10%;
+            left: 20%;
+            transform: rotate(45deg);
+        }
+
+        .geometric-bg::after {
+            bottom: 10%;
+            right: 20%;
+            transform: rotate(-45deg);
+        }
+
+        @keyframes neonText {
+            from {
+                text-shadow: 0 0 5px var(--primary-color), 0 0 10px var(--primary-color);
+            }
+            to {
+                text-shadow: 0 0 10px var(--primary-color), 0 0 20px var(--primary-color);
+            }
+        }
+
+        @keyframes rotate {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
