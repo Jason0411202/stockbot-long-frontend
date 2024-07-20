@@ -4,7 +4,7 @@ import Head from "next/head";
 import * as mainJS from "@/../public/js/helper.js";
 
 export default function Home(props) {
-  const [UGLData, GetUGLData] = React.useState([{buy_date: "Backend Unreachable", sell_date: "Backend Unreachable", stock_id: "Backend Unreachable", stock_name: "Backend Unreachable", purchase_price: "Backend Unreachable", sell_price: "Backend Unreachable", investment_cost: "Backend Unreachable", revenue: "Backend Unreachable", profit_loss: "Backend Unreachable", profit_rate: "Backend Unreachable"}]);
+  const [UGLData, GetUGLData] = React.useState([{buy_date: "Loading...", sell_date: "Loading...", stock_id: "Loading...", stock_name: "Loading...", purchase_price: "Loading...", sell_price: "Loading...", investment_cost: "Loading...", revenue: "Loading...", profit_loss: "Loading...", profit_rate: "Loading..."}]);
 
   React.useEffect(() => {
     const data = mainJS.getRealizedGainsLossesData(props);
@@ -28,6 +28,7 @@ export default function Home(props) {
             <a href="/">首頁</a>
             <a href="/unrealized_gains_losses">未實現損益紀錄</a>
             <a href="/realized_gains_losses">已實現損益紀錄</a>
+            <a href="/stock_statistic_data">追蹤股票資訊</a>
         </nav>
         <h1>長線股票模擬交易系統 (已實現損益)</h1>
         <table id="stock-table">

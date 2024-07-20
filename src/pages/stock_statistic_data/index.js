@@ -4,10 +4,10 @@ import Head from "next/head";
 import * as mainJS from "@/../public/js/helper.js";
 
 export default function Home(props) {
-  const [UGLData, GetUGLData] = React.useState([{transaction_date: "Loading...", stock_id: "Loading...", stock_name: "Loading...", transaction_price: "Loading...", investment_cost: "Loading...", todayClosePrice: "Loading...", now_value: "Loading...", predict_profit_loss: "Loading...", predict_profit_rate: "Loading..."}]);
+  const [UGLData, GetUGLData] = React.useState([{stock_id: "Loading...", stock_name: "Loading...", today_price: "Loading...", lower_point_days: "Loading...", upper_point_days: "Loading..."}]);
 
   React.useEffect(() => {
-    const data = mainJS.getUnrealizedGainsLossesData(props);
+    const data = mainJS.getSotckStatisticData(props);
     data.then((result) => {
       GetUGLData(result);
     });
@@ -19,7 +19,7 @@ export default function Home(props) {
       <Head>
         <meta charset="UTF-8"/>
         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-        <title>長線股票模擬交易系統</title>
+        <title>股票交易紀錄</title>
         <link rel="stylesheet" href="/css/main.css"></link>
       </Head>
       <main>
@@ -30,43 +30,29 @@ export default function Home(props) {
             <a href="/realized_gains_losses">已實現損益紀錄</a>
             <a href="/stock_statistic_data">追蹤股票資訊</a>
         </nav>
-        <h1>長線股票模擬交易系統 (未實現損益)</h1>
+        <h1>長線股票模擬交易系統 (追蹤股票資訊)</h1>
         <table id="stock-table">
             <thead>
                 <tr>
-                    <th>交易日期</th>
                     <th>股票代號</th>
                     <th>股票名稱</th>
-                    <th>買入價格</th>
-                    <th>投資成本</th>
-                    <th>現價</th>
-                    <th>現值</th>
-                    <th>預估損益</th>
-                    <th>預估損益率 (%)</th>
+                    <th>今日價格</th>
+                    <th>位於近幾天之最低點</th>
+                    <th>位於近幾天之最高點</th>
                 </tr>
             </thead>
             <tbody>
               {UGLData.map((item) => (
                 <tr key={item.id}>
-                  <td>{item.transaction_date}</td>
                   <td>{item.stock_id}</td>
                   <td>{item.stock_name}</td>
-                  <td>{item.transaction_price}</td>
-                  <td>{item.investment_cost}</td>
-                  <td>{item.todayClosePrice}</td>
-                  <td>{item.now_value}</td>
-                  <td>{item.predict_profit_loss}</td>
-                  <td>{item.predict_profit_rate}</td>
+                  <td>{item.today_price}</td>
+                  <td>{item.lower_point_days}</td>
+                  <td>{item.upper_point_days}</td>
                 </tr>
               ))}
             </tbody>
         </table>
-        <div class="summary">
-            <p>投資成本：<span id="total-cost">-</span></p>
-            <p>帳面收入：<span id="total-income">-</span></p>
-            <p>損益：<span id="total-profit-loss">-</span></p>
-            <p>報酬率：<span id="return-rate">-</span></p>
-        </div>
       </div>
       <div class="geometric-bg"></div>
       </main>

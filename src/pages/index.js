@@ -28,6 +28,7 @@ export default function Home(props) {
           <div class="links">
               <a href="/unrealized_gains_losses" class="link-button">未實現損益紀錄</a>
               <a href="/realized_gains_losses" class="link-button">已實現損益紀錄</a>
+              <a href="/stock_statistic_data" class="link-button">追蹤股票資訊</a>
           </div>
         </div>
         <div class="geometric-bg"></div>
