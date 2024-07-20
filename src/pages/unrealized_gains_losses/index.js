@@ -4,7 +4,7 @@ import Head from "next/head";
 import * as mainJS from "@/../public/js/helper.js";
 
 export default function Home(props) {
-  const [UGLData, GetUGLData] = React.useState([{transaction_date: "Backend Unreachable", stock_id: "Backend Unreachable", stock_name: "Backend Unreachable", transaction_price: "Backend Unreachable", investment_cost: "Backend Unreachable"}]);
+  const [UGLData, GetUGLData] = React.useState([{transaction_date: "Backend Unreachable", stock_id: "Backend Unreachable", stock_name: "Backend Unreachable", transaction_price: "Backend Unreachable", investment_cost: "Backend Unreachable", todayClosePrice: "Backend Unreachable", now_value: "Backend Unreachable", predict_profit_loss: "Backend Unreachable", predict_profit_rate: "Backend Unreachable"}]);
 
   React.useEffect(() => {
     const data = mainJS.getUnrealizedGainsLossesData(props);
@@ -33,11 +33,15 @@ export default function Home(props) {
         <table id="stock-table">
             <thead>
                 <tr>
-                    <th>transaction_date</th>
-                    <th>stock_id</th>
-                    <th>stock_name</th>
-                    <th>transaction_price</th>
-                    <th>investment_cost</th>
+                    <th>交易日期</th>
+                    <th>股票代號</th>
+                    <th>股票名稱</th>
+                    <th>買入價格</th>
+                    <th>投資成本</th>
+                    <th>現價</th>
+                    <th>現值</th>
+                    <th>預估損益</th>
+                    <th>預估損益率 (%)</th>
                 </tr>
             </thead>
             <tbody>
@@ -48,6 +52,10 @@ export default function Home(props) {
                   <td>{item.stock_name}</td>
                   <td>{item.transaction_price}</td>
                   <td>{item.investment_cost}</td>
+                  <td>{item.todayClosePrice}</td>
+                  <td>{item.now_value}</td>
+                  <td>{item.predict_profit_loss}</td>
+                  <td>{item.predict_profit_rate}</td>
                 </tr>
               ))}
             </tbody>

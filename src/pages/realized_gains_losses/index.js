@@ -42,7 +42,7 @@ export default function Home(props) {
                     <th>投資成本</th>
                     <th>總收益</th>
                     <th>損益</th>
-                    <th>損益率</th>
+                    <th>損益率 (%)</th>
                 </tr>
             </thead>
             <tbody>

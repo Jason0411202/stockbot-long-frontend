@@ -12,7 +12,7 @@ export function getUnrealizedGainsLossesData(props) {
   })
   .catch(error => {
     console.error('錯誤：', error);
-    return [{transaction_date: "Backend Unreachable", stock_id: "Backend Unreachable", stock_name: "Backend Unreachable", transaction_price: "Backend Unreachable", investment_cost: "Backend Unreachable"}]
+    return [{transaction_date: "Backend Unreachable", stock_id: "Backend Unreachable", stock_name: "Backend Unreachable", transaction_price: "Backend Unreachable", investment_cost: "Backend Unreachable", todayClosePrice: "Backend Unreachable", now_value: "Backend Unreachable", predict_profit_loss: "Backend Unreachable", predict_profit_rate: "Backend Unreachable"}]
   });
 }
 
