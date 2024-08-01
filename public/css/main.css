@@ -102,14 +102,15 @@
 
         .summary p {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
+            flex-direction: column;
+            align-items: flex-start;
             font-size: 1.1rem;
         }
 
         .summary span {
             font-weight: bold;
             color: var(--primary-color);
+            margin-top: 0.5rem;
         }
 
         .geometric-bg {

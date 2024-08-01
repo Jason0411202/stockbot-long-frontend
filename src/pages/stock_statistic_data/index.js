@@ -19,7 +19,7 @@ export default function Home(props) {
       <Head>
         <meta charset="UTF-8"/>
         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-        <title>股票交易紀錄</title>
+        <title>長線股票模擬交易系統</title>
         <link rel="stylesheet" href="/css/main.css"></link>
       </Head>
       <main>

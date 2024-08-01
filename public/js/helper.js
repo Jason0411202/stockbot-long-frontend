@@ -51,3 +51,23 @@ export function getSotckStatisticData(props) {
     return [{stock_id: "Backend Unreachable", stock_name: "Backend Unreachable", today_price: "Backend Unreachable", lower_point_days: "Backend Unreachable", upper_point_days: "Backend Unreachable"}]
   });
 }
+
+export function getSummary(props) {
+  let totalCost = 0;
+  let totalProfitLoss = 0;
+  let totalReturnRate = 0;
+ 
+  props.map((item) => {
+    totalCost += parseFloat(item.investment_cost);
+
+    // 若 item.predict_profit_loss 存在
+    if(item.predict_profit_loss) {
+      totalProfitLoss += parseFloat(item.predict_profit_loss);
+    } else {
+      totalProfitLoss += parseFloat(item.profit_loss);
+    }
+  });
+  totalReturnRate = (totalProfitLoss / totalCost * 100);
+
+  return [{total_cost: totalCost.toFixed(2), total_profit_loss: totalProfitLoss.toFixed(2), return_rate: totalReturnRate.toFixed(2)}];
+}

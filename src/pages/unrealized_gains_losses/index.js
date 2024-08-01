@@ -5,11 +5,14 @@ import * as mainJS from "@/../public/js/helper.js";
 
 export default function Home(props) {
   const [UGLData, GetUGLData] = React.useState([{transaction_date: "Loading...", stock_id: "Loading...", stock_name: "Loading...", transaction_price: "Loading...", investment_cost: "Loading...", todayClosePrice: "Loading...", now_value: "Loading...", predict_profit_loss: "Loading...", predict_profit_rate: "Loading..."}]);
+  const [SummaryData, GetSummaryData] = React.useState([{total_cost: "Loading...", total_profit_loss: "Loading...", return_rate: "Loading..."}]);
 
   React.useEffect(() => {
     const data = mainJS.getUnrealizedGainsLossesData(props);
     data.then((result) => {
       GetUGLData(result);
+      const summary = mainJS.getSummary(result);
+      GetSummaryData(summary);
     });
   }, []);
 
@@ -62,10 +65,9 @@ export default function Home(props) {
             </tbody>
         </table>
         <div class="summary">
-            <p>投資成本：<span id="total-cost">-</span></p>
-            <p>帳面收入：<span id="total-income">-</span></p>
-            <p>損益：<span id="total-profit-loss">-</span></p>
-            <p>報酬率：<span id="return-rate">-</span></p>
+          <p>總投資成本：<span id="total-cost" >{SummaryData[0].total_cost}</span></p>
+          <p>總預估損益：<span id="total-profit-loss">{SummaryData[0].total_profit_loss}</span></p>
+          <p>總預估損益率 (%)：<span id="total-return-rate">{SummaryData[0].return_rate}</span></p>
         </div>
       </div>
       <div class="geometric-bg"></div>
