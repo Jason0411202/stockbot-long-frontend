@@ -6,3 +6,6 @@ REACT_APP_backendServer=jason-server.eastus2.cloudapp.azure.com
 ```
 
 關於後端伺服器的部署，請參考 `https://github.com/Jason0411202/stockbot-long-backend`
+
+# TODO
+- [ ] 根據股號動態產生獨立頁面，該頁面包含過去一個月、一年、三年、五年的股價折線圖及系統買點
