@@ -44,7 +44,9 @@ export default function Home(props) {
             <tbody>
               {UGLData.map((item) => (
                 <tr key={item.id}>
-                  <td>{item.stock_id}</td>
+                  <td>
+                    <a className="stock-link" href={`/stocks/${item.stock_id}`}>{item.stock_id}</a>
+                  </td>
                   <td>{item.stock_name}</td>
                   <td>{item.today_price}</td>
                   <td>{item.lower_point_days}</td>
