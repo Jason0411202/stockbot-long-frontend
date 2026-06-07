@@ -1,0 +1,25 @@
+.card {
+  position: relative;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+}
+
+.flush {
+  padding: 0;
+}
+
+.accent::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    var(--color-accent),
+    transparent 60%
+  );
+}

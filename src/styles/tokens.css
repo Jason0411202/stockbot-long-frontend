@@ -1,0 +1,93 @@
+/* Design tokens — fintech dashboard, dark-first.
+ * 為 P&L / 圖表產品「刻意」選定的暗色方向（非自動套暗色）。
+ * 結構預留 light 變體：日後加 @media (prefers-color-scheme: light) 覆寫即可。 */
+
+:root {
+  /* ── Surfaces (由深到淺的分層) ── */
+  --color-bg: oklch(16% 0.014 255);
+  --color-bg-elevated: oklch(19% 0.015 255);
+  --color-surface: oklch(22% 0.016 255);
+  --color-surface-raised: oklch(26% 0.018 255);
+  --color-border: oklch(32% 0.02 255);
+  --color-border-strong: oklch(40% 0.024 255);
+
+  /* ── Text ── */
+  --color-text: oklch(96% 0.006 255);
+  --color-text-muted: oklch(74% 0.014 255);
+  --color-text-faint: oklch(60% 0.016 255);
+
+  /* ── Accent (teal) ── */
+  --color-accent: oklch(76% 0.13 195);
+  --color-accent-strong: oklch(70% 0.14 195);
+  --color-accent-contrast: oklch(18% 0.03 230);
+  --color-accent-soft: oklch(76% 0.13 195 / 0.12);
+
+  /* ── Semantic P&L ── */
+  --color-profit: oklch(74% 0.16 152);
+  --color-profit-soft: oklch(74% 0.16 152 / 0.14);
+  --color-loss: oklch(66% 0.2 26);
+  --color-loss-soft: oklch(66% 0.2 26 / 0.14);
+  --color-neutral: var(--color-text-muted);
+
+  /* ── Chart series ── */
+  --color-chart-line: oklch(72% 0.13 230);
+  --color-chart-buy-open: oklch(66% 0.2 26); /* 未獲利了結買點 (紅) */
+  --color-chart-buy-closed: oklch(74% 0.16 152); /* 已獲利了結買點 (綠) */
+  --color-chart-sell: oklch(72% 0.2 330); /* 賣出點 (洋紅) */
+  --color-chart-grid: oklch(32% 0.02 255 / 0.5);
+
+  /* ── Typography ── */
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", "Noto Sans TC", sans-serif;
+  --font-mono: var(--font-mono-jb), ui-monospace, "SFMono-Regular", "Cascadia Code",
+    monospace;
+
+  --text-xs: 0.75rem;
+  --text-sm: 0.8125rem;
+  --text-base: clamp(0.9rem, 0.86rem + 0.2vw, 1rem);
+  --text-lg: clamp(1.05rem, 1rem + 0.3vw, 1.2rem);
+  --text-xl: clamp(1.3rem, 1.2rem + 0.5vw, 1.6rem);
+  --text-2xl: clamp(1.7rem, 1.4rem + 1.2vw, 2.4rem);
+  --text-3xl: clamp(2.2rem, 1.7rem + 2.4vw, 3.6rem);
+
+  --weight-normal: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+
+  --leading-tight: 1.15;
+  --leading-normal: 1.5;
+
+  /* ── Spacing ── */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-8: 3rem;
+  --space-10: 4rem;
+  --space-section: clamp(2.5rem, 1.8rem + 3vw, 5rem);
+
+  /* ── Radius ── */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-xl: 22px;
+  --radius-pill: 999px;
+
+  /* ── Elevation ── */
+  --shadow-sm: 0 1px 2px oklch(0% 0 0 / 0.3);
+  --shadow-md: 0 8px 24px -8px oklch(0% 0 0 / 0.5);
+  --shadow-lg: 0 24px 60px -20px oklch(0% 0 0 / 0.6);
+  --shadow-glow: 0 0 0 1px var(--color-accent-soft), 0 8px 30px -12px oklch(76% 0.13 195 / 0.35);
+
+  /* ── Motion ── */
+  --duration-fast: 140ms;
+  --duration-normal: 240ms;
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* ── Layout ── */
+  --content-max: 1180px;
+  --header-height: 64px;
+}

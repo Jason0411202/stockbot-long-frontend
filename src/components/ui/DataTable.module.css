@@ -1,0 +1,66 @@
+.scroll {
+  width: 100%;
+  overflow-x: auto;
+  border-radius: var(--radius-lg);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-sm);
+  min-width: 640px;
+}
+
+.caption {
+  caption-side: top;
+  text-align: left;
+  padding: var(--space-3) var(--space-4);
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+
+.table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--color-bg-elevated);
+  color: var(--color-text-muted);
+  font-weight: var(--weight-medium);
+  font-size: var(--text-xs);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--color-border-strong);
+  white-space: nowrap;
+}
+
+.table tbody td {
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--color-border);
+  color: var(--color-text);
+  white-space: nowrap;
+}
+
+.table tbody tr {
+  transition: background var(--duration-fast) var(--ease-out-expo);
+}
+
+.table tbody tr:hover {
+  background: var(--color-surface-raised);
+}
+
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.table [data-align="right"] {
+  text-align: right;
+}
+
+.table [data-align="center"] {
+  text-align: center;
+}
+
+.table [data-align="left"] {
+  text-align: left;
+}
