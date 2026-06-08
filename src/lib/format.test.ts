@@ -2,8 +2,10 @@ import { describe, expect, it } from "vitest";
 
 import {
   formatCurrency,
+  formatMultiple,
   formatNumber,
   formatPercent,
+  formatRatioPercent,
   formatSignedNumber,
   toFiniteNumber,
   trendOf,
@@ -59,6 +61,30 @@ describe("formatSignedNumber", () => {
   it("正數加號、負數負號", () => {
     expect(formatSignedNumber(1234.5)).toBe("+1,234.50");
     expect(formatSignedNumber(-567)).toBe("-567.00");
+  });
+});
+
+describe("formatMultiple", () => {
+  it("加上倍數符號、保留兩位小數", () => {
+    expect(formatMultiple(1.403)).toBe("1.40×");
+    expect(formatMultiple(1)).toBe("1.00×");
+  });
+  it("null（對應後端 JSONFloat 的 NaN/Inf）回傳破折號", () => {
+    expect(formatMultiple(null)).toBe("—");
+  });
+});
+
+describe("formatRatioPercent", () => {
+  it("小數比率乘 100 後加上百分號", () => {
+    expect(formatRatioPercent(0.047)).toBe("4.70%");
+    expect(formatRatioPercent(-0.227)).toBe("-22.70%");
+  });
+  it("signed 模式為正值加上 + 號", () => {
+    expect(formatRatioPercent(0.047, true)).toBe("+4.70%");
+    expect(formatRatioPercent(-0.227, true)).toBe("-22.70%");
+  });
+  it("null 回傳破折號", () => {
+    expect(formatRatioPercent(null)).toBe("—");
   });
 });
 

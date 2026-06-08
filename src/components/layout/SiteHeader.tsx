@@ -7,6 +7,7 @@ import styles from "./SiteHeader.module.css";
 
 const NAV_LINKS = [
   { href: "/", label: "總覽" },
+  { href: "/performance", label: "策略績效" },
   { href: "/unrealized_gains_losses", label: "未實現損益" },
   { href: "/realized_gains_losses", label: "已實現損益" },
   { href: "/stock_statistic_data", label: "追蹤標的" },

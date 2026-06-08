@@ -1,0 +1,532 @@
+/* 策略績效（performance summary）共用樣式。
+ * 以 bento / 對照表 / scorecard 構成，刻意打破均一卡片網格，建立層次與說服力。 */
+
+/* ── 區塊外殼 ── */
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.sectionHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.sectionTitle {
+  font-size: var(--text-lg);
+  font-weight: var(--weight-semibold);
+  letter-spacing: -0.01em;
+}
+
+.sectionMeta {
+  font-size: var(--text-sm);
+  color: var(--color-text-faint);
+  font-family: var(--font-mono);
+}
+
+/* ════════════════ EquityOverview（實盤總權益 bento） ════════════════ */
+.equity {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1fr;
+  gap: var(--space-4);
+}
+
+/* 主格：總權益 */
+.equityHero {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-6);
+  background:
+    radial-gradient(120% 140% at 0% 0%, var(--color-accent-soft), transparent 55%),
+    var(--color-surface-raised);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+}
+
+.equityHero::after {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--color-accent), transparent 70%);
+}
+
+.liveTag {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-xs);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.liveDot {
+  width: 7px;
+  height: 7px;
+  border-radius: var(--radius-pill);
+  background: var(--color-profit);
+  box-shadow: 0 0 0 0 var(--color-profit-soft);
+  animation: livePulse 2.4s var(--ease-out-expo) infinite;
+}
+
+@keyframes livePulse {
+  0% {
+    box-shadow: 0 0 0 0 var(--color-profit-soft);
+  }
+  70% {
+    box-shadow: 0 0 0 8px transparent;
+  }
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+  }
+}
+
+.equityValue {
+  font-size: var(--text-3xl);
+  font-weight: var(--weight-bold);
+  letter-spacing: -0.03em;
+  line-height: var(--leading-tight);
+}
+
+.equityFooter {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  margin-top: var(--space-1);
+}
+
+.returnPill {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-pill);
+  font-weight: var(--weight-semibold);
+  font-size: var(--text-lg);
+}
+
+.returnPill[data-trend="profit"] {
+  background: var(--color-profit-soft);
+  color: var(--color-profit);
+}
+
+.returnPill[data-trend="loss"] {
+  background: var(--color-loss-soft);
+  color: var(--color-loss);
+}
+
+.returnPill[data-trend="neutral"] {
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+}
+
+.returnPillLabel {
+  font-size: var(--text-xs);
+  font-weight: var(--weight-medium);
+  letter-spacing: 0.04em;
+  opacity: 0.85;
+}
+
+.pnlText {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.pnlText strong {
+  font-weight: var(--weight-semibold);
+}
+
+/* ── 副格（持股市值 / 閒置現金 / 已實現 / 未實現…） ── */
+.miniCard {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--space-1);
+  padding: var(--space-4) var(--space-5);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+.miniLabel {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.miniValue {
+  font-size: var(--text-lg);
+  font-weight: var(--weight-semibold);
+  letter-spacing: -0.01em;
+}
+
+.miniValue[data-trend="profit"] {
+  color: var(--color-profit);
+}
+
+.miniValue[data-trend="loss"] {
+  color: var(--color-loss);
+}
+
+.miniHint {
+  font-size: var(--text-xs);
+  color: var(--color-text-faint);
+}
+
+/* ════════════════ StrategyVsBenchmark（對照表） ════════════════ */
+.compare {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+}
+
+.compareHead {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr 1fr;
+  align-items: end;
+  gap: var(--space-2);
+  padding: var(--space-4) var(--space-5);
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-bg-elevated);
+}
+
+.compareHeadMetric {
+  font-size: var(--text-sm);
+  color: var(--color-text-faint);
+}
+
+.armHead {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  text-align: right;
+}
+
+.armName {
+  font-size: var(--text-base);
+  font-weight: var(--weight-semibold);
+}
+
+.armName[data-arm="strategy"] {
+  color: var(--color-accent);
+}
+
+.armName[data-arm="buy_hold"] {
+  color: var(--color-text-muted);
+}
+
+.armTag {
+  font-size: var(--text-xs);
+  color: var(--color-text-faint);
+}
+
+.compareRow {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr 1fr;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-5);
+  border-top: 1px solid var(--color-border);
+}
+
+.compareRow:first-of-type {
+  border-top: none;
+}
+
+.metricLabel {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.metricName {
+  font-size: var(--text-sm);
+  color: var(--color-text);
+}
+
+.metricHint {
+  font-size: var(--text-xs);
+  color: var(--color-text-faint);
+}
+
+.cell {
+  position: relative;
+  text-align: right;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--text-base);
+  color: var(--color-text);
+  padding: var(--space-1) 0;
+}
+
+.cell[data-winner="true"] {
+  color: var(--color-text);
+  font-weight: var(--weight-semibold);
+}
+
+.winFlag {
+  display: inline-block;
+  margin-left: var(--space-2);
+  font-size: var(--text-xs);
+  color: var(--color-accent);
+}
+
+/* 回撤 mini-bar */
+.bar {
+  margin-top: 5px;
+  height: 4px;
+  width: 100%;
+  border-radius: var(--radius-pill);
+  background: var(--color-bg);
+  overflow: hidden;
+}
+
+.barFill {
+  display: block;
+  height: 100%;
+  border-radius: var(--radius-pill);
+  background: var(--color-loss);
+  opacity: 0.8;
+}
+
+.compareFoot {
+  padding: var(--space-3) var(--space-5);
+  border-top: 1px solid var(--color-border);
+  background: var(--color-bg-elevated);
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.compareFoot strong {
+  color: var(--color-text);
+  font-weight: var(--weight-semibold);
+}
+
+/* ════════════════ RobustnessScorecard ════════════════ */
+.scorecard {
+  display: grid;
+  grid-template-columns: minmax(220px, 0.8fr) 1.6fr;
+  gap: var(--space-4);
+}
+
+.verdict {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-6);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
+  text-align: center;
+}
+
+.verdict[data-pass="true"] {
+  background:
+    radial-gradient(120% 120% at 50% 0%, var(--color-profit-soft), transparent 60%),
+    var(--color-surface-raised);
+  border-color: var(--color-profit-soft);
+  box-shadow: 0 0 0 1px var(--color-profit-soft), var(--shadow-md);
+}
+
+.verdict[data-pass="false"] {
+  background:
+    radial-gradient(120% 120% at 50% 0%, oklch(78% 0.14 75 / 0.14), transparent 60%),
+    var(--color-surface-raised);
+  border-color: oklch(78% 0.14 75 / 0.3);
+  box-shadow: var(--shadow-md);
+}
+
+.verdictEyebrow {
+  font-size: var(--text-xs);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.verdictMark {
+  font-size: var(--text-2xl);
+  font-weight: var(--weight-bold);
+  letter-spacing: -0.02em;
+}
+
+.verdict[data-pass="true"] .verdictMark {
+  color: var(--color-profit);
+}
+
+.verdict[data-pass="false"] .verdictMark {
+  color: oklch(80% 0.14 75);
+}
+
+.verdictDesc {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.verdictScore {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  color: var(--color-text-faint);
+}
+
+.gates {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-3);
+}
+
+.gate {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.gateIcon {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  border-radius: var(--radius-pill);
+  display: grid;
+  place-items: center;
+  font-size: var(--text-xs);
+  font-weight: var(--weight-bold);
+  margin-top: 1px;
+}
+
+.gateIcon[data-pass="true"] {
+  background: var(--color-profit-soft);
+  color: var(--color-profit);
+}
+
+.gateIcon[data-pass="false"] {
+  background: var(--color-loss-soft);
+  color: var(--color-loss);
+}
+
+.gateBody {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.gateName {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--color-text);
+}
+
+.gateDesc {
+  font-size: var(--text-xs);
+  color: var(--color-text-faint);
+  line-height: 1.35;
+}
+
+/* ════════════════ 通用 metric 網格（CapitalBreakdown / TradeStats） ════════════════ */
+.metricGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-3);
+}
+
+.metricGroupLabel {
+  grid-column: 1 / -1;
+  font-size: var(--text-xs);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-faint);
+  margin-top: var(--space-2);
+}
+
+.metricGroupLabel:first-child {
+  margin-top: 0;
+}
+
+.metric {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-4);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.metric dt {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+.metric dd {
+  font-size: var(--text-lg);
+  font-weight: var(--weight-semibold);
+  letter-spacing: -0.01em;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.metric dd[data-trend="profit"] {
+  color: var(--color-profit);
+}
+
+.metric dd[data-trend="loss"] {
+  color: var(--color-loss);
+}
+
+/* ── 空 / null 回測狀態 ── */
+.emptyBacktest {
+  padding: var(--space-6);
+  border: 1px dashed var(--color-border-strong);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  text-align: center;
+}
+
+/* ════════════════ 響應式 ════════════════ */
+@media (max-width: 920px) {
+  .equity {
+    grid-template-columns: 1fr 1fr;
+  }
+  .equityHero {
+    grid-column: 1 / -1;
+  }
+  .scorecard {
+    grid-template-columns: 1fr;
+  }
+  .metricGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 620px) {
+  .equity {
+    grid-template-columns: 1fr;
+  }
+  .gates {
+    grid-template-columns: 1fr;
+  }
+  .metricGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .compareHead,
+  .compareRow {
+    grid-template-columns: 1fr 0.9fr 0.9fr;
+  }
+}

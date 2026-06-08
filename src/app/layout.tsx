@@ -22,7 +22,7 @@ export const metadata: Metadata = {
     template: "%s · 長線股票模擬交易系統",
   },
   description:
-    "台股 ETF 長線與波段策略的模擬交易儀表板：未實現／已實現損益、追蹤標的統計與個股歷史買賣點。",
+    "台股 ETF 長線與波段策略的模擬交易儀表板：策略績效回測（vs 買進持有）與穩健性檢驗、未實現／已實現損益、追蹤標的統計與個股歷史買賣點。",
 };
 
 export default function RootLayout({

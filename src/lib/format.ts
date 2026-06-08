@@ -53,6 +53,24 @@ export function formatSignedNumber(value: unknown, fractionDigits = 2): string {
   return `${sign}${formatNumber(n, fractionDigits)}`;
 }
 
+/** 本金倍數（例如 1.403 → "1.40×"）；非數字回傳 "—"。 */
+export function formatMultiple(value: unknown): string {
+  const n = toFiniteNumber(value);
+  return n === null ? "—" : `${NUMBER_2DP.format(n)}×`;
+}
+
+/**
+ * 比率轉百分比（後端以小數承載：0.047 → "4.70%"、-0.227 → "-22.70%"）；非數字回傳 "—"。
+ * @param signed 為 true 時正值加上 "+"（用於報酬類，負值本就帶 "-"）。
+ */
+export function formatRatioPercent(value: unknown, signed = false): string {
+  const n = toFiniteNumber(value);
+  if (n === null) return "—";
+  const pct = n * 100;
+  const sign = signed && pct > 0 ? "+" : "";
+  return `${sign}${NUMBER_2DP.format(pct)}%`;
+}
+
 /** 損益方向：用於語意色（profit / loss / neutral）。 */
 export type Trend = "profit" | "loss" | "neutral";
 

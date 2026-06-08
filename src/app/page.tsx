@@ -1,9 +1,15 @@
 import Link from "next/link";
 
-import { OverviewSnapshot } from "@/components/home/OverviewSnapshot";
+import { HomePerformance } from "@/components/performance/HomePerformance";
 import styles from "./home.module.css";
 
 const FEATURES = [
+  {
+    href: "/performance",
+    title: "策略績效",
+    desc: "實盤現況、回測對照與 walk-forward 穩健性 scorecard。",
+    tag: "Performance",
+  },
   {
     href: "/unrealized_gains_losses",
     title: "未實現損益",
@@ -35,19 +41,14 @@ export default function HomePage() {
           <span className={styles.titleAccent}>模擬交易系統</span>
         </h1>
         <p className={styles.lead}>
-          牛熊 regime 感知的逢低加碼策略，在此即時檢視未實現與已實現損益、
-          追蹤標的統計，以及每檔股票的歷史買賣決策點。
+          牛熊 regime 感知的逢低加碼策略。以同樣的本金與每月注資，
+          在七年以上歷史回測中對照「買進持有」，並用多視窗 walk-forward
+          檢驗穩健性——數字會說話。
         </p>
       </section>
 
-      <section aria-label="投資組合即時快照" className={styles.snapshot}>
-        <div className={styles.snapshotHead}>
-          <h2 className={styles.snapshotTitle}>即時快照</h2>
-          <Link href="/unrealized_gains_losses" className={styles.snapshotLink}>
-            查看完整未實現損益 →
-          </Link>
-        </div>
-        <OverviewSnapshot />
+      <section aria-label="策略績效摘要" className={styles.snapshot}>
+        <HomePerformance />
       </section>
 
       <section aria-label="功能導覽">

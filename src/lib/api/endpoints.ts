@@ -1,7 +1,8 @@
-/** 後端四支業務端點的型別化包裝（路徑對應 internal/server/server.go）。 */
+/** 後端業務端點的型別化包裝（路徑對應 internal/server/server.go）。 */
 
 import { apiGet } from "./client";
 import type {
+  PerformanceSummary,
   RealizedGainLoss,
   StockHistoryPoint,
   StockStatistic,
@@ -13,6 +14,7 @@ export const ENDPOINTS = {
   realized: "/api/get_realized_gains_losses",
   statistics: "/api/get_stock_statistic_data",
   history: "/api/get_stock_history_data",
+  performance: "/api/get_performance_summary",
 } as const;
 
 export function getUnrealizedGainsLosses(
@@ -41,4 +43,11 @@ export function getStockHistory(
 ): Promise<StockHistoryPoint[]> {
   const query = new URLSearchParams({ stockId });
   return apiGet<StockHistoryPoint[]>(`${ENDPOINTS.history}?${query.toString()}`, signal);
+}
+
+/** 取得策略績效摘要（本金明細 + 實盤現況 + 回測 scorecard）。 */
+export function getPerformanceSummary(
+  signal?: AbortSignal,
+): Promise<PerformanceSummary> {
+  return apiGet<PerformanceSummary>(ENDPOINTS.performance, signal);
 }
