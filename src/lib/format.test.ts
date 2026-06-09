@@ -5,6 +5,7 @@ import {
   formatMultiple,
   formatNumber,
   formatPercent,
+  formatPercentPlain,
   formatRatioPercent,
   formatSignedNumber,
   toFiniteNumber,
@@ -54,6 +55,19 @@ describe("formatPercent", () => {
   });
   it("零不加號", () => {
     expect(formatPercent(0)).toBe("0.00%");
+  });
+});
+
+describe("formatPercentPlain", () => {
+  it("已是百分比的佔比，預設一位小數、不加正負號", () => {
+    expect(formatPercentPlain(73.4)).toBe("73.4%");
+    expect(formatPercentPlain(0)).toBe("0.0%");
+  });
+  it("可指定小數位數", () => {
+    expect(formatPercentPlain(26.55, 2)).toBe("26.55%");
+  });
+  it("非數字回傳破折號", () => {
+    expect(formatPercentPlain(null)).toBe("—");
   });
 });
 

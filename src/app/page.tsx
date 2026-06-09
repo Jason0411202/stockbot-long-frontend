@@ -1,15 +1,9 @@
 import Link from "next/link";
 
-import { HomePerformance } from "@/components/performance/HomePerformance";
+import { LatestPerformance } from "@/components/performance/LatestPerformance";
 import styles from "./home.module.css";
 
 const FEATURES = [
-  {
-    href: "/performance",
-    title: "策略績效",
-    desc: "實盤現況、回測對照與 walk-forward 穩健性 scorecard。",
-    tag: "Performance",
-  },
   {
     href: "/unrealized_gains_losses",
     title: "未實現損益",
@@ -28,6 +22,12 @@ const FEATURES = [
     desc: "策略追蹤標的的即時統計，並深入個股歷史買賣點。",
     tag: "Watchlist",
   },
+  {
+    href: "/performance",
+    title: "歷史策略績效",
+    desc: "以時間軸折線圖呈現實盤每日權益與回測權益曲線。",
+    tag: "History",
+  },
 ] as const;
 
 export default function HomePage() {
@@ -41,14 +41,14 @@ export default function HomePage() {
           <span className={styles.titleAccent}>模擬交易系統</span>
         </h1>
         <p className={styles.lead}>
-          牛熊 regime 感知的逢低加碼策略。以同樣的本金與每月注資，
-          在七年以上歷史回測中對照「買進持有」，並用多視窗 walk-forward
-          檢驗穩健性——數字會說話。
+          牛熊 regime 感知的逢低加碼策略。下方為最新策略績效快照——實盤總權益、
+          資產配置，以及對照「買進持有」的全期回測與多視窗 walk-forward
+          穩健性檢驗。想看隨時間變化的走勢，請見「歷史策略績效」。
         </p>
       </section>
 
-      <section aria-label="策略績效摘要" className={styles.snapshot}>
-        <HomePerformance />
+      <section aria-label="最新策略績效" className={styles.snapshot}>
+        <LatestPerformance />
       </section>
 
       <section aria-label="功能導覽">

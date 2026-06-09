@@ -2,6 +2,7 @@
 
 import { apiGet } from "./client";
 import type {
+  LiveEquityPoint,
   PerformanceSummary,
   RealizedGainLoss,
   StockHistoryPoint,
@@ -15,6 +16,7 @@ export const ENDPOINTS = {
   statistics: "/api/get_stock_statistic_data",
   history: "/api/get_stock_history_data",
   performance: "/api/get_performance_summary",
+  equityHistory: "/api/get_equity_history",
 } as const;
 
 export function getUnrealizedGainsLosses(
@@ -50,4 +52,11 @@ export function getPerformanceSummary(
   signal?: AbortSignal,
 ): Promise<PerformanceSummary> {
   return apiGet<PerformanceSummary>(ENDPOINTS.performance, signal);
+}
+
+/** 取得實盤每日權益歷史（真實帳戶總權益時間序列，供歷史權益折線圖）。 */
+export function getEquityHistory(
+  signal?: AbortSignal,
+): Promise<LiveEquityPoint[]> {
+  return apiGet<LiveEquityPoint[]>(ENDPOINTS.equityHistory, signal);
 }

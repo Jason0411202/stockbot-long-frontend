@@ -22,12 +22,18 @@
   --color-accent-contrast: oklch(18% 0.03 230);
   --color-accent-soft: oklch(76% 0.13 195 / 0.12);
 
-  /* ── Semantic P&L ── */
-  --color-profit: oklch(74% 0.16 152);
-  --color-profit-soft: oklch(74% 0.16 152 / 0.14);
-  --color-loss: oklch(66% 0.2 26);
-  --color-loss-soft: oklch(66% 0.2 26 / 0.14);
+  /* ── Semantic P&L（台股慣例：漲／獲利 = 紅，跌／虧損 = 綠） ── */
+  --color-profit: oklch(64% 0.21 25); /* 獲利 / 漲 (紅) */
+  --color-profit-soft: oklch(64% 0.21 25 / 0.15);
+  --color-loss: oklch(72% 0.16 152); /* 虧損 / 跌 (綠) */
+  --color-loss-soft: oklch(72% 0.16 152 / 0.14);
   --color-neutral: var(--color-text-muted);
+
+  /* ── Pass / Fail（穩健性 scorecard 的「通過 / 未過」語意，與漲跌無關） ── */
+  --color-pass: oklch(74% 0.16 152); /* 通過 (綠) */
+  --color-pass-soft: oklch(74% 0.16 152 / 0.14);
+  --color-fail: oklch(66% 0.2 26); /* 未過 / 風險 (紅) */
+  --color-fail-soft: oklch(66% 0.2 26 / 0.14);
 
   /* ── Chart series ── */
   --color-chart-line: oklch(72% 0.13 230);
@@ -35,6 +41,14 @@
   --color-chart-buy-closed: oklch(74% 0.16 152); /* 已獲利了結買點 (綠) */
   --color-chart-sell: oklch(72% 0.2 330); /* 賣出點 (洋紅) */
   --color-chart-grid: oklch(32% 0.02 255 / 0.5);
+
+  /* ── 權益曲線（歷史策略績效折線圖） ── */
+  --color-equity-strat: oklch(76% 0.13 195); /* 本策略 (品牌 teal) */
+  --color-equity-bh: oklch(70% 0.03 255); /* 買進持有 (中性灰) */
+  --color-equity-up: oklch(64% 0.21 25); /* 期末高於期初 (漲・紅) */
+  --color-equity-down: oklch(72% 0.16 152); /* 期末低於期初 (跌・綠) */
+  --color-equity-holding: oklch(76% 0.13 195); /* 持股市值堆疊 */
+  --color-equity-cash: oklch(70% 0.05 255); /* 預備現金堆疊 */
 
   /* ── Typography ── */
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system,

@@ -74,14 +74,14 @@
   width: 7px;
   height: 7px;
   border-radius: var(--radius-pill);
-  background: var(--color-profit);
-  box-shadow: 0 0 0 0 var(--color-profit-soft);
+  background: var(--color-accent);
+  box-shadow: 0 0 0 0 var(--color-accent-soft);
   animation: livePulse 2.4s var(--ease-out-expo) infinite;
 }
 
 @keyframes livePulse {
   0% {
-    box-shadow: 0 0 0 0 var(--color-profit-soft);
+    box-shadow: 0 0 0 0 var(--color-accent-soft);
   }
   70% {
     box-shadow: 0 0 0 8px transparent;
@@ -297,7 +297,7 @@
   display: block;
   height: 100%;
   border-radius: var(--radius-pill);
-  background: var(--color-loss);
+  background: var(--color-fail);
   opacity: 0.8;
 }
 
@@ -334,10 +334,10 @@
 
 .verdict[data-pass="true"] {
   background:
-    radial-gradient(120% 120% at 50% 0%, var(--color-profit-soft), transparent 60%),
+    radial-gradient(120% 120% at 50% 0%, var(--color-pass-soft), transparent 60%),
     var(--color-surface-raised);
-  border-color: var(--color-profit-soft);
-  box-shadow: 0 0 0 1px var(--color-profit-soft), var(--shadow-md);
+  border-color: var(--color-pass-soft);
+  box-shadow: 0 0 0 1px var(--color-pass-soft), var(--shadow-md);
 }
 
 .verdict[data-pass="false"] {
@@ -362,7 +362,7 @@
 }
 
 .verdict[data-pass="true"] .verdictMark {
-  color: var(--color-profit);
+  color: var(--color-pass);
 }
 
 .verdict[data-pass="false"] .verdictMark {
@@ -409,13 +409,13 @@
 }
 
 .gateIcon[data-pass="true"] {
-  background: var(--color-profit-soft);
-  color: var(--color-profit);
+  background: var(--color-pass-soft);
+  color: var(--color-pass);
 }
 
 .gateIcon[data-pass="false"] {
-  background: var(--color-loss-soft);
-  color: var(--color-loss);
+  background: var(--color-fail-soft);
+  color: var(--color-fail);
 }
 
 .gateBody {
@@ -488,6 +488,216 @@
   color: var(--color-loss);
 }
 
+/* ════════════════ AssetAllocation（資產配置） ════════════════ */
+.alloc {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-5) var(--space-6);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+}
+
+.allocHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.allocTitle {
+  font-size: var(--text-base);
+  font-weight: var(--weight-semibold);
+}
+
+.allocTotal {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.allocBar {
+  display: flex;
+  width: 100%;
+  height: 16px;
+  border-radius: var(--radius-pill);
+  background: var(--color-bg);
+  overflow: hidden;
+}
+
+.allocSegHolding,
+.allocSegCash {
+  height: 100%;
+  transition: width var(--duration-normal) var(--ease-out-expo);
+}
+
+.allocSegHolding {
+  background: var(--color-equity-holding);
+}
+
+.allocSegCash {
+  background: var(--color-equity-cash);
+}
+
+/* 兩段之間留一道細縫，讓比例切點清楚可見。 */
+.allocSegCash {
+  box-shadow: inset 2px 0 0 0 var(--color-surface);
+}
+
+.allocLegend {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-3) var(--space-5);
+  margin: 0;
+}
+
+.allocRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.allocRowLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.allocDot {
+  flex: none;
+  width: 10px;
+  height: 10px;
+  border-radius: var(--radius-pill);
+}
+
+.allocDot[data-variant="holding"] {
+  background: var(--color-equity-holding);
+}
+
+.allocDot[data-variant="cash"] {
+  background: var(--color-equity-cash);
+}
+
+.allocRowHint {
+  font-size: var(--text-xs);
+  color: var(--color-text-faint);
+}
+
+.allocRowValue {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--space-3);
+  margin: 0;
+}
+
+.allocPct {
+  font-size: var(--text-lg);
+  font-weight: var(--weight-semibold);
+  letter-spacing: -0.01em;
+}
+
+.allocPct[data-variant="holding"] {
+  color: var(--color-equity-holding);
+}
+
+.allocPct[data-variant="cash"] {
+  color: var(--color-text-muted);
+}
+
+.allocAmount {
+  font-size: var(--text-sm);
+  color: var(--color-text-faint);
+}
+
+/* ════════════════ 權益折線圖（歷史策略績效） ════════════════ */
+.chartCard {
+  padding: var(--space-5) var(--space-5) var(--space-4);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+}
+
+.chartBox {
+  position: relative;
+  width: 100%;
+  height: clamp(300px, 46vh, 460px);
+}
+
+.chartCaption {
+  margin-bottom: var(--space-4);
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.chartCaption strong {
+  color: var(--color-text);
+  font-weight: var(--weight-semibold);
+}
+
+.chartChange[data-trend="profit"] {
+  color: var(--color-profit);
+}
+
+.chartChange[data-trend="loss"] {
+  color: var(--color-loss);
+}
+
+.chartChange[data-trend="neutral"] {
+  color: var(--color-text-muted);
+}
+
+.chartLegend {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3) var(--space-5);
+  padding: var(--space-4) var(--space-2) 0;
+  margin: 0;
+}
+
+.legendItem {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.swatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  box-shadow: 0 0 0 2px var(--color-surface);
+}
+
+.chartFoot {
+  margin-top: var(--space-4);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-border);
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.chartFoot strong {
+  color: var(--color-text);
+  font-weight: var(--weight-semibold);
+}
+
+.chartFootLink {
+  color: var(--color-accent);
+  margin: 0 0.25em;
+}
+
+.chartFootLink:hover {
+  text-decoration: underline;
+}
+
 /* ── 空 / null 回測狀態 ── */
 .emptyBacktest {
   padding: var(--space-6);
@@ -520,6 +730,9 @@
     grid-template-columns: 1fr;
   }
   .gates {
+    grid-template-columns: 1fr;
+  }
+  .allocLegend {
     grid-template-columns: 1fr;
   }
   .metricGrid {

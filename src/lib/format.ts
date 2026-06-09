@@ -45,6 +45,13 @@ export function formatPercent(value: unknown): string {
   return `${sign}${NUMBER_2DP.format(n)}%`;
 }
 
+/** 已是百分比的數值（例如佔比 73.4 → "73.4%"，不強制正負號）；非數字回傳 "—"。 */
+export function formatPercentPlain(value: unknown, fractionDigits = 1): string {
+  const n = toFiniteNumber(value);
+  if (n === null) return "—";
+  return `${formatNumber(n, fractionDigits)}%`;
+}
+
 /** 帶正負號的損益金額（例如 +1,234 / -567）；非數字回傳 "—"。 */
 export function formatSignedNumber(value: unknown, fractionDigits = 2): string {
   const n = toFiniteNumber(value);

@@ -1,8 +1,11 @@
 "use client";
 
+import Link from "next/link";
+
 import { MessageState, TableSkeleton } from "@/components/ui/feedback";
 import { usePerformanceSummary } from "@/hooks/usePerformance";
 
+import { AssetAllocation } from "./AssetAllocation";
 import { CapitalBreakdown } from "./CapitalBreakdown";
 import { EquityOverview } from "./EquityOverview";
 import { RobustnessScorecard } from "./RobustnessScorecard";
@@ -10,8 +13,11 @@ import { StrategyVsBenchmark } from "./StrategyVsBenchmark";
 import { TradeStats } from "./TradeStats";
 import styles from "./performance.module.css";
 
-/** /performance 頁的完整績效儀表板：實盤現況 → 回測對照 → 穩健性 → 資金與交易明細。 */
-export function PerformanceDashboard() {
+/**
+ * 總覽頁的「最新策略績效」快照：實盤現況 → 資產配置 → 回測對照 → 穩健性 → 資金與交易明細。
+ * 只呈現「當前最新」狀態；隨時間變化的歷史走勢請見「歷史策略績效」。
+ */
+export function LatestPerformance() {
   const { summary, error, isLoading } = usePerformanceSummary();
 
   if (isLoading) return <TableSkeleton rows={4} cols={4} />;
@@ -20,7 +26,7 @@ export function PerformanceDashboard() {
     return (
       <MessageState
         tone="error"
-        title="無法載入績效摘要"
+        title="無法載入策略績效"
         description="請確認後端服務已啟動，且 NEXT_PUBLIC_BACKEND_URL 設定正確。"
       />
     );
@@ -38,12 +44,22 @@ export function PerformanceDashboard() {
         <EquityOverview summary={summary} />
       </section>
 
+      <section className={styles.section} aria-label="資產配置">
+        <div className={styles.sectionHead}>
+          <h2 className={styles.sectionTitle}>資產配置</h2>
+          <span className={styles.sectionMeta}>持股市值 vs 預備現金</span>
+        </div>
+        <AssetAllocation summary={summary} />
+      </section>
+
       {backtest ? (
         <>
           <section className={styles.section} aria-label="策略 vs 買進持有">
             <div className={styles.sectionHead}>
               <h2 className={styles.sectionTitle}>策略 vs 買進持有</h2>
-              <span className={styles.sectionMeta}>全期回測 · 同本金同注資</span>
+              <Link href="/performance" className={styles.sectionMeta}>
+                歷史走勢 →
+              </Link>
             </div>
             <StrategyVsBenchmark backtest={backtest} />
           </section>

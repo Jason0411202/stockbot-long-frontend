@@ -86,12 +86,16 @@ export interface PerformanceSummary {
   total_invested: number;
 
   // ── 實盤現況（真實帳本 + BotState） ──
-  /** 目前閒置現金 */
+  /** 目前閒置現金（未投入股市的預備現金） */
   current_cash: number;
   /** 目前持股市值（即時收盤價估） */
   holding_value: number;
   /** 總權益 = 現金 + 持股市值 */
   total_equity: number;
+  /** 持股佔總資產比例 (%) = 持股市值 / 總權益；總權益 ≤ 0 時為 0 */
+  holding_ratio: number;
+  /** 預備現金佔總資產比例 (%) = 現金 / 總權益；與 holding_ratio 合計約 100 */
+  cash_ratio: number;
   /** 累計已實現損益 */
   realized_pnl: number;
   /** 目前未實現損益 */
@@ -134,8 +138,23 @@ export interface BacktestPerformance {
   /** 策略期末閒置現金（現金尾巴） */
   final_cash: number;
 
+  /** 全期（等距取樣，最多 400 點）每日權益曲線：策略 vs 買進持有，供前端折線圖 */
+  equity_curve: EquityPoint[];
   /** 多視窗 walk-forward 穩健性 scorecard */
   walk_forward: WalkForwardScore;
+}
+
+/**
+ * 回測權益曲線時間軸上的單一取樣點（供前端策略 vs 買進持有折線圖）。
+ * 金額為當日總權益（現金 + 持股市值，含已注入資金）；長序列會被等距取樣以控制回應大小。
+ */
+export interface EquityPoint {
+  /** 交易日 (YYYY-MM-DD) */
+  date: string;
+  /** 策略當日總權益 */
+  strat_equity: number;
+  /** Buy & Hold 當日總權益 */
+  bh_equity: number;
 }
 
 /** 一條權益曲線（策略 / B&H）在全期回測下的核心績效指標。比率欄位邊界可能為 null。 */
@@ -196,4 +215,20 @@ export interface WalkForwardScore {
   g5_robustness: boolean;
   /** G1~G4 全過（G5 為資訊性） */
   overall_pass: boolean;
+}
+
+/**
+ * GET /api/get_equity_history 的單筆回應：某交易日收盤後的真實帳戶權益快照。
+ * 資料來源為線上引擎逐日寫入的 EquityHistory 表（升冪，等距取樣最多 400 點）；
+ * 與回測 equity_curve 不同，此為「真實帳本走勢」，隨上線運行逐日累積。
+ */
+export interface LiveEquityPoint {
+  /** 交易日 (YYYY-MM-DD) */
+  date: string;
+  /** 當日閒置現金（未投入股市的預備現金） */
+  cash: number;
+  /** 當日持股市值（以當日或之前最近收盤價估） */
+  holding_value: number;
+  /** 當日總權益 = 現金 + 持股市值 */
+  total_equity: number;
 }
