@@ -99,6 +99,39 @@ export function filterByRange(
   return points.filter((p) => new Date(p.date) >= limit);
 }
 
+/**
+ * 依時間範圍過濾，但基準是序列「最後一筆」的日期，而非系統當下時間。
+ * 用於績效權益走勢：回測曲線終點是過去某日（span_end），用 now 當基準會讓短區間全空。
+ * 序列須為日期升冪；"all" 或空序列原樣回傳。
+ */
+export function filterFromEnd<T extends { date: string }>(
+  points: readonly T[],
+  range: TimeRange,
+): T[] {
+  if (range === "all" || points.length === 0) return [...points];
+
+  const last = new Date(points[points.length - 1].date);
+  const limit = new Date(last);
+  switch (range) {
+    case "1m":
+      limit.setMonth(last.getMonth() - 1);
+      break;
+    case "3m":
+      limit.setMonth(last.getMonth() - 3);
+      break;
+    case "6m":
+      limit.setMonth(last.getMonth() - 6);
+      break;
+    case "1y":
+      limit.setFullYear(last.getFullYear() - 1);
+      break;
+    case "3y":
+      limit.setFullYear(last.getFullYear() - 3);
+      break;
+  }
+  return points.filter((p) => new Date(p.date) >= limit);
+}
+
 /** 取得三類成本欄位的數值範圍，用於動態決定點大小。 */
 export function costRange(points: readonly MergedHistoryPoint[]): {
   min: number;

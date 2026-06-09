@@ -626,34 +626,98 @@
 .chartBox {
   position: relative;
   width: 100%;
-  height: clamp(300px, 46vh, 460px);
+  height: clamp(340px, 56vh, 560px);
 }
 
-.chartLegend {
-  list-style: none;
+.overlayEmpty {
+  display: grid;
+  place-items: center;
+  min-height: clamp(340px, 56vh, 560px);
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+
+/* ════════════════ 歷史頁：多指標疊圖 + 勾選面板 ════════════════ */
+.overlayPage {
   display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-3) var(--space-5);
-  padding: var(--space-4) var(--space-2) 0;
-  margin: 0;
+  flex-direction: column;
+  gap: var(--space-5);
 }
 
-.legendItem {
+/* 勾選面板：依來源分組 */
+.toggles {
+  display: grid;
+  grid-template-columns: auto 1fr 1fr;
+  gap: var(--space-4);
+}
+
+.toggleGroup {
+  min-width: 0;
+  padding: var(--space-3) var(--space-4) var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+
+.toggleLegend {
+  padding: 0 var(--space-2);
+  font-size: var(--text-xs);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-faint);
+}
+
+.toggleItems {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.toggle {
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background var(--duration-fast) var(--ease-out-expo);
+}
+
+.toggle:hover {
+  background: var(--color-surface-raised);
+}
+
+.toggle[data-on] .toggleLabel {
+  color: var(--color-text);
+}
+
+.toggleInput {
+  width: 14px;
+  height: 14px;
+  accent-color: var(--color-accent);
+  cursor: pointer;
+}
+
+.toggleSwatch {
+  width: 10px;
+  height: 10px;
+  border-radius: var(--radius-pill);
+  flex: none;
+}
+
+.toggleLabel {
   font-size: var(--text-sm);
   color: var(--color-text-muted);
+  white-space: nowrap;
 }
 
-.swatch {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  box-shadow: 0 0 0 2px var(--color-surface);
+.toggleUnit {
+  margin-left: auto;
+  font-size: var(--text-xs);
+  color: var(--color-text-faint);
 }
 
-/* ── 區間選擇工具列（控制下方兩張權益走勢圖） ── */
+/* ── 區間選擇工具列（控制疊圖時間範圍） ── */
 .rangeToolbar {
   display: flex;
   align-items: center;
@@ -698,6 +762,9 @@
   .metricGrid {
     grid-template-columns: repeat(3, 1fr);
   }
+  .toggles {
+    grid-template-columns: 1fr 1fr;
+  }
 }
 
 @media (max-width: 620px) {
@@ -708,6 +775,9 @@
     grid-template-columns: 1fr;
   }
   .allocLegend {
+    grid-template-columns: 1fr;
+  }
+  .toggles {
     grid-template-columns: 1fr;
   }
   .metricGrid {

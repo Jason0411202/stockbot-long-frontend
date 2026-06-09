@@ -3,6 +3,7 @@
 import { apiGet } from "./client";
 import type {
   LiveEquityPoint,
+  PerformanceHistoryPoint,
   PerformanceSummary,
   RealizedGainLoss,
   StockHistoryPoint,
@@ -17,6 +18,7 @@ export const ENDPOINTS = {
   history: "/api/get_stock_history_data",
   performance: "/api/get_performance_summary",
   equityHistory: "/api/get_equity_history",
+  performanceHistory: "/api/get_performance_history",
 } as const;
 
 export function getUnrealizedGainsLosses(
@@ -59,4 +61,14 @@ export function getEquityHistory(
   signal?: AbortSignal,
 ): Promise<LiveEquityPoint[]> {
   return apiGet<LiveEquityPoint[]>(ENDPOINTS.equityHistory, signal);
+}
+
+/**
+ * 取得統一的逐日績效時間序列（回測 + 實盤同一條時間軸），供歷史頁可勾選疊圖。
+ * 契約見 docs/backend-request-performance-history.md。
+ */
+export function getPerformanceHistory(
+  signal?: AbortSignal,
+): Promise<PerformanceHistoryPoint[]> {
+  return apiGet<PerformanceHistoryPoint[]>(ENDPOINTS.performanceHistory, signal);
 }

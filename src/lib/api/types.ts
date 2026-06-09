@@ -232,3 +232,65 @@ export interface LiveEquityPoint {
   /** 當日總權益 = 現金 + 持股市值 */
   total_equity: number;
 }
+
+/**
+ * GET /api/get_performance_history 的單筆回應：某交易日的「統一績效快照」。
+ * 同一條時間軸同時承載回測（模擬，全期皆有值）與實盤（真實，go-live 後才有，之前為 null）。
+ * 因回測每日依最新資料重跑、與實盤共享右端（今天），故不拆成兩支端點。
+ *
+ * 契約見 docs/backend-request-performance-history.md（後端尚未實作前，以 mock 對接）。
+ * 比率／倍數／報酬率欄位邊界可能為 null（對應後端 JSONFloat 的 NaN/±Inf）。
+ * 實盤欄位（cash…max_drawdown）在 go-live 之前為 null。
+ */
+export interface PerformanceHistoryPoint {
+  /** 交易日 (YYYY-MM-DD)，升冪 */
+  date: string;
+  /** 投入本金到當日（lump-sum 為常數 = 期初本金；含注資則逐日累計） */
+  invested: number;
+
+  // ── 回測（模擬；全期皆有值） ──
+  /** 策略當日權益 */
+  strat_equity: number;
+  /** 買進持有當日權益 */
+  bh_equity: number;
+  /** 策略本金倍數 = 權益 / 投入本金 */
+  strat_multiple: number | null;
+  /** 買進持有本金倍數 */
+  bh_multiple: number | null;
+  /** 策略累積報酬率 (%) */
+  strat_return_rate: number | null;
+  /** 買進持有累積報酬率 (%) */
+  bh_return_rate: number | null;
+  /** 策略到當日滾動最大回撤 (%；≤ 0) */
+  strat_drawdown: number | null;
+  /** 買進持有到當日滾動最大回撤 (%) */
+  bh_drawdown: number | null;
+  /** 策略到當日年化報酬 (%) */
+  strat_cagr: number | null;
+
+  // ── 實盤（真實帳本；go-live 前各欄為 null） ──
+  /** 預備現金 */
+  cash: number | null;
+  /** 持股市值 */
+  holding_value: number | null;
+  /** 實盤總權益 */
+  total_equity: number | null;
+  /** 持股佔比 (%) */
+  holding_ratio: number | null;
+  /** 現金佔比 (%) */
+  cash_ratio: number | null;
+  /** 總損益 = 實盤總權益 − 投入本金 */
+  total_pnl: number | null;
+  /** 實盤累積報酬率 (%) */
+  total_return_rate: number | null;
+  /** 實盤本金倍數 */
+  multiple: number | null;
+  /** 累計已實現損益（到當日） */
+  realized_pnl: number | null;
+  /** 當日未實現損益 */
+  unrealized_pnl: number | null;
+  /** 實盤到當日年化報酬 (%) */
+  cagr: number | null;
+  /** 實盤到當日滾動最大回撤 (%) */
+  max_drawdown: number | null;
+}

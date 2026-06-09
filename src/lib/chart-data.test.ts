@@ -9,6 +9,7 @@ import {
   calculatePointSize,
   costRange,
   filterByRange,
+  filterFromEnd,
   mergeHistoryWithTrades,
   type MergedHistoryPoint,
 } from "./chart-data";
@@ -132,6 +133,39 @@ describe("filterByRange", () => {
     const snapshot = now.getTime();
     filterByRange(points, "3m", now);
     expect(now.getTime()).toBe(snapshot);
+  });
+});
+
+describe("filterFromEnd", () => {
+  const series = [
+    { date: "2018-01-01", v: 1 },
+    { date: "2022-06-01", v: 2 },
+    { date: "2025-03-01", v: 3 },
+    { date: "2025-06-01", v: 4 }, // 末筆
+  ];
+
+  it("'all' 原樣回傳", () => {
+    expect(filterFromEnd(series, "all")).toHaveLength(4);
+  });
+
+  it("相對末筆日期回推（過去的終點也能取到區間，不受系統當下影響）", () => {
+    // 末筆 2025-06-01，6m → 取 >= 2024-12-01，只剩最後兩點
+    expect(filterFromEnd(series, "6m").map((p) => p.date)).toEqual([
+      "2025-03-01",
+      "2025-06-01",
+    ]);
+  });
+
+  it("3y 以末筆為基準回推", () => {
+    expect(filterFromEnd(series, "3y").map((p) => p.date)).toEqual([
+      "2022-06-01",
+      "2025-03-01",
+      "2025-06-01",
+    ]);
+  });
+
+  it("空序列回傳空陣列", () => {
+    expect(filterFromEnd([], "1y")).toEqual([]);
   });
 });
 
