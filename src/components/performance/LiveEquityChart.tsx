@@ -16,8 +16,8 @@ import {
 import { Line } from "react-chartjs-2";
 
 import type { LiveEquityPoint } from "@/lib/api/types";
-import { equityChangePct, equityTrend } from "@/lib/equity-chart";
-import { formatCurrency, formatPercent } from "@/lib/format";
+import { equityTrend } from "@/lib/equity-chart";
+import { formatCurrency } from "@/lib/format";
 
 import styles from "./performance.module.css";
 
@@ -44,7 +44,6 @@ interface LiveEquityChartProps {
  */
 export function LiveEquityChart({ points }: LiveEquityChartProps) {
   const trend = equityTrend(points);
-  const changePct = equityChangePct(points);
   const mainColor =
     trend === "profit" ? COLORS.up : trend === "loss" ? COLORS.down : COLORS.neutral;
 
@@ -144,18 +143,6 @@ export function LiveEquityChart({ points }: LiveEquityChartProps) {
 
   return (
     <div>
-      {changePct !== null ? (
-        <p className={styles.chartCaption}>
-          區間 <strong>{points[0]?.date}</strong> ～{" "}
-          <strong>{points[points.length - 1]?.date}</strong>，總權益自{" "}
-          {formatCurrency(points[0]?.total_equity)} 至{" "}
-          {formatCurrency(points[points.length - 1]?.total_equity)}（
-          <span className={`${styles.chartChange} num`} data-trend={trend}>
-            {formatPercent(changePct)}
-          </span>
-          ）。
-        </p>
-      ) : null}
       <div className={styles.chartBox}>
         <Line data={data} options={options} />
       </div>
