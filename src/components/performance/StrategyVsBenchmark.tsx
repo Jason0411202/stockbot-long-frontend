@@ -1,3 +1,4 @@
+import { useAmountScale } from "@/contexts/AmountScaleContext";
 import type { ArmMetrics, BacktestPerformance } from "@/lib/api/types";
 import {
   formatCurrency,
@@ -17,7 +18,7 @@ interface MetricRow {
   /** 取出該指標的原始值（用於判定優勝方與畫 bar） */
   pick: (m: ArmMetrics) => number | null;
   /** 顯示字串 */
-  format: (value: number | null) => string;
+  format: (value: number | null, scale: number) => string;
   /** 哪個方向較好（決定優勝高亮）；none = 純資訊不分勝負 */
   better: Direction;
   /** 是否在 cell 下方畫一條比例 bar（目前用於最大回撤） */
@@ -29,7 +30,7 @@ const ROWS: readonly MetricRow[] = [
     name: "期末權益",
     hint: "回測終點總權益",
     pick: (m) => m.final_equity,
-    format: (v) => formatCurrency(v),
+    format: (v, scale) => formatCurrency(v, scale),
     better: "higher",
   },
   {
@@ -94,6 +95,7 @@ interface StrategyVsBenchmarkProps {
  * 最大回撤額外畫出相對比例 bar，讓「風險更低」一眼可見。
  */
 export function StrategyVsBenchmark({ backtest }: StrategyVsBenchmarkProps) {
+  const { scale } = useAmountScale();
   const { strategy, buy_hold } = backtest;
 
   // 回撤 bar 的共同基準（兩臂中較深的回撤 = 100% 寬）
@@ -132,13 +134,13 @@ export function StrategyVsBenchmark({ backtest }: StrategyVsBenchmarkProps) {
               {row.hint ? <span className={styles.metricHint}>{row.hint}</span> : null}
             </span>
             <ArmCell
-              text={row.format(sVal)}
+              text={row.format(sVal, scale)}
               win={win === "strategy"}
               bar={row.bar}
               barRatio={Math.abs(toFiniteNumber(sVal) ?? 0) / ddMax}
             />
             <ArmCell
-              text={row.format(bVal)}
+              text={row.format(bVal, scale)}
               win={win === "buy_hold"}
               bar={row.bar}
               barRatio={Math.abs(toFiniteNumber(bVal) ?? 0) / ddMax}
@@ -150,7 +152,7 @@ export function StrategyVsBenchmark({ backtest }: StrategyVsBenchmarkProps) {
       <p className={styles.compareFoot}>
         回測區間 <strong>{backtest.span_start}</strong> ～{" "}
         <strong>{backtest.span_end}</strong>（約 {formatNumber(backtest.years, 1)} 年），
-        投入本金 <strong>{formatCurrency(backtest.total_in)}</strong>。
+        投入本金 <strong>{formatCurrency(backtest.total_in, scale)}</strong>。
       </p>
     </div>
   );

@@ -15,6 +15,7 @@ import {
 } from "chart.js";
 import { Line } from "react-chartjs-2";
 
+import { useAmountScale } from "@/contexts/AmountScaleContext";
 import {
   calculatePointSize,
   costRange,
@@ -57,6 +58,7 @@ interface StockChartProps {
  * 數字陣列混用造成的類別錯位）。tooltip 的金額用 dataIndex 從成本陣列查。
  */
 export function StockChart({ points, range, stockId }: StockChartProps) {
+  const { scale } = useAmountScale();
   const { data, options } = useMemo(() => {
     const filtered = filterByRange(points, range);
     const cr = costRange(filtered);
@@ -143,7 +145,7 @@ export function StockChart({ points, range, stockId }: StockChartProps) {
                 return `收盤價：${formatNumber(ctx.parsed.y)}`;
               }
               const cost = costByDataset[ctx.datasetIndex]?.[ctx.dataIndex];
-              return `${ctx.dataset.label}：${formatCurrency(cost)}`;
+              return `${ctx.dataset.label}：${formatCurrency(cost, scale)}`;
             },
           },
         },
@@ -167,7 +169,7 @@ export function StockChart({ points, range, stockId }: StockChartProps) {
     };
 
     return { data: chartData, options: chartOptions };
-  }, [points, range, stockId]);
+  }, [points, range, scale, stockId]);
 
   return (
     <div>

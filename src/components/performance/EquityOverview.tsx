@@ -1,3 +1,4 @@
+import { useAmountScale } from "@/contexts/AmountScaleContext";
 import type { PerformanceSummary } from "@/lib/api/types";
 import {
   formatCurrency,
@@ -14,6 +15,7 @@ interface EquityOverviewProps {
 
 /** 實盤總權益 bento：總權益（主格）＋ 報酬率、總損益、四個帳本副格。 */
 export function EquityOverview({ summary }: EquityOverviewProps) {
+  const { scale } = useAmountScale();
   const trend = trendOf(summary.total_pnl);
 
   return (
@@ -24,7 +26,7 @@ export function EquityOverview({ summary }: EquityOverviewProps) {
           實盤總權益 · LIVE
         </span>
         <span className={`${styles.equityValue} num`}>
-          {formatCurrency(summary.total_equity)}
+          {formatCurrency(summary.total_equity, scale)}
         </span>
         <div className={styles.equityFooter}>
           <span className={`${styles.returnPill} num`} data-trend={trend}>
@@ -34,7 +36,7 @@ export function EquityOverview({ summary }: EquityOverviewProps) {
           <span className={styles.pnlText}>
             總損益{" "}
             <strong className="num" data-trend={trend}>
-              {formatSignedNumber(summary.total_pnl, 0)}
+              {formatSignedNumber(summary.total_pnl, 0, scale)}
             </strong>
           </span>
         </div>
@@ -42,24 +44,25 @@ export function EquityOverview({ summary }: EquityOverviewProps) {
 
       <MiniCard
         label="投入本金"
-        value={formatCurrency(summary.total_invested)}
+        value={formatCurrency(summary.total_invested, scale)}
         hint={
           summary.monthly_contribution > 0
-            ? `期初 ${formatCurrency(summary.initial_cash)} ＋ 每月 ${formatCurrency(
+            ? `期初 ${formatCurrency(summary.initial_cash, scale)} ＋ 每月 ${formatCurrency(
                 summary.monthly_contribution,
+                scale,
               )}`
             : `期初一次性投入`
         }
       />
-      <MiniCard label="持股市值" value={formatCurrency(summary.holding_value)} />
+      <MiniCard label="持股市值" value={formatCurrency(summary.holding_value, scale)} />
       <MiniCard
         label="已實現損益"
-        value={formatSignedNumber(summary.realized_pnl, 0)}
+        value={formatSignedNumber(summary.realized_pnl, 0, scale)}
         trend={trendOf(summary.realized_pnl)}
       />
       <MiniCard
         label="未實現損益"
-        value={formatSignedNumber(summary.unrealized_pnl, 0)}
+        value={formatSignedNumber(summary.unrealized_pnl, 0, scale)}
         trend={trendOf(summary.unrealized_pnl)}
       />
     </div>

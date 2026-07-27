@@ -1,3 +1,4 @@
+import { useAmountScale } from "@/contexts/AmountScaleContext";
 import type { BacktestPerformance } from "@/lib/api/types";
 import {
   formatCurrency,
@@ -14,6 +15,7 @@ interface TradeStatsProps {
 
 /** 回測期的策略交易統計，以及 walk-forward 多視窗中位指標。 */
 export function TradeStats({ backtest }: TradeStatsProps) {
+  const { scale } = useAmountScale();
   const wf = backtest.walk_forward;
   return (
     <dl className={styles.metricGrid}>
@@ -23,7 +25,7 @@ export function TradeStats({ backtest }: TradeStatsProps) {
       <Metric label="移動停利" value={formatNumber(backtest.trail_sells, 0)} />
       <Metric label="獲利了結" value={formatNumber(backtest.profit_sells, 0)} />
       <Metric label="現金不足跳過" value={formatNumber(backtest.skipped, 0)} />
-      <Metric label="期末現金尾巴" value={formatCurrency(backtest.final_cash)} />
+      <Metric label="期末現金尾巴" value={formatCurrency(backtest.final_cash, scale)} />
 
       <p className={styles.metricGroupLabel}>
         Walk-Forward 多視窗中位（{wf.n_windows} 個 {wf.window_months} 月視窗 / 步進{" "}

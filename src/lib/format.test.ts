@@ -29,6 +29,9 @@ describe("formatCurrency", () => {
   it("含千分位", () => {
     expect(formatCurrency(1234567)).toContain("1,234,567");
   });
+  it("套用金額顯示倍率", () => {
+    expect(formatCurrency(500_000, 2)).toContain("1,000,000");
+  });
   it("非數字回傳破折號", () => {
     expect(formatCurrency("x")).toBe("—");
   });
@@ -75,6 +78,9 @@ describe("formatSignedNumber", () => {
   it("正數加號、負數負號", () => {
     expect(formatSignedNumber(1234.5)).toBe("+1,234.50");
     expect(formatSignedNumber(-567)).toBe("-567.00");
+  });
+  it("套用倍率後保留正負方向", () => {
+    expect(formatSignedNumber(-500, 0, 1.5)).toBe("-750");
   });
 });
 

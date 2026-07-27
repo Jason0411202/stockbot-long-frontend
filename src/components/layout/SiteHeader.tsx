@@ -2,7 +2,11 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useState } from "react";
 
+import { AmountScaleSettings } from "@/components/settings/AmountScaleSettings";
+import { useAmountScale } from "@/contexts/AmountScaleContext";
+import { formatScale } from "@/lib/amount-scale";
 import styles from "./SiteHeader.module.css";
 
 const NAV_LINKS = [
@@ -20,6 +24,8 @@ function isActive(pathname: string, href: string): boolean {
 
 export function SiteHeader() {
   const pathname = usePathname();
+  const { scale } = useAmountScale();
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   return (
     <header className={styles.header}>
@@ -47,7 +53,22 @@ export function SiteHeader() {
             );
           })}
         </nav>
+
+        <button
+          className={styles.settingsButton}
+          type="button"
+          aria-haspopup="dialog"
+          aria-expanded={settingsOpen}
+          onClick={() => setSettingsOpen(true)}
+        >
+          <span aria-hidden="true">⚙</span>
+          <span className={styles.settingsLabel}>金額</span>
+          <span className={`${styles.scaleBadge} num`}>{formatScale(scale)}×</span>
+        </button>
       </div>
+      {settingsOpen ? (
+        <AmountScaleSettings onClose={() => setSettingsOpen(false)} />
+      ) : null}
     </header>
   );
 }

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 
 import { SiteHeader } from "@/components/layout/SiteHeader";
+import { AmountScaleProvider } from "@/contexts/AmountScaleContext";
 import "./globals.css";
 
 const inter = Inter({
@@ -31,8 +32,10 @@ export default function RootLayout({
   return (
     <html lang="zh-Hant" className={`${inter.variable} ${jetbrainsMono.variable}`}>
       <body>
-        <SiteHeader />
-        <main>{children}</main>
+        <AmountScaleProvider>
+          <SiteHeader />
+          <main>{children}</main>
+        </AmountScaleProvider>
       </body>
     </html>
   );

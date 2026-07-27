@@ -1,3 +1,4 @@
+import { useAmountScale } from "@/contexts/AmountScaleContext";
 import type { PerformanceSummary } from "@/lib/api/types";
 import { formatCurrency, formatPercentPlain, toFiniteNumber } from "@/lib/format";
 
@@ -18,6 +19,7 @@ function clampRatio(value: number): number {
  * 一條堆疊條 + 兩列明細，讓「錢有多少在場上、多少在場邊」一眼看懂。
  */
 export function AssetAllocation({ summary }: AssetAllocationProps) {
+  const { scale } = useAmountScale();
   const holdingPct = clampRatio(toFiniteNumber(summary.holding_ratio) ?? 0);
   const cashPct = clampRatio(toFiniteNumber(summary.cash_ratio) ?? 0);
   // 條寬以兩者相對比例正規化，確保視覺上恰好填滿（總權益<=0 時兩者皆 0）。
@@ -30,7 +32,7 @@ export function AssetAllocation({ summary }: AssetAllocationProps) {
       <div className={styles.allocHead}>
         <span className={styles.allocTitle}>目前資產配置</span>
         <span className={`${styles.allocTotal} num`}>
-          總資產 {formatCurrency(summary.total_equity)}
+          總資產 {formatCurrency(summary.total_equity, scale)}
         </span>
       </div>
 
@@ -50,14 +52,14 @@ export function AssetAllocation({ summary }: AssetAllocationProps) {
         <AllocRow
           variant="holding"
           label="持股市值"
-          amount={formatCurrency(summary.holding_value)}
+          amount={formatCurrency(summary.holding_value, scale)}
           pct={formatPercentPlain(summary.holding_ratio)}
         />
         <AllocRow
           variant="cash"
           label="預備現金"
           hint="未投入股市"
-          amount={formatCurrency(summary.current_cash)}
+          amount={formatCurrency(summary.current_cash, scale)}
           pct={formatPercentPlain(summary.cash_ratio)}
         />
       </dl>

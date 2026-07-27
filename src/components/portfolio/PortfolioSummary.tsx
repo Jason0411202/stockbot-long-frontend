@@ -1,4 +1,5 @@
 import { StatCard } from "@/components/ui";
+import { useAmountScale } from "@/contexts/AmountScaleContext";
 import { formatCurrency, formatPercent, formatSignedNumber, trendOf } from "@/lib/format";
 import type { PortfolioSummary as Summary } from "@/lib/summary";
 
@@ -11,16 +12,17 @@ interface PortfolioSummaryProps {
 }
 
 export function PortfolioSummary({ summary, variant }: PortfolioSummaryProps) {
+  const { scale } = useAmountScale();
   const plLabel = variant === "unrealized" ? "總預估損益" : "總損益";
   const rateLabel = variant === "unrealized" ? "總預估損益率" : "總損益率";
   const trend = trendOf(summary.totalProfitLoss);
 
   return (
     <div className={styles.grid}>
-      <StatCard label="總投資成本" value={formatCurrency(summary.totalCost)} />
+      <StatCard label="總投資成本" value={formatCurrency(summary.totalCost, scale)} />
       <StatCard
         label={plLabel}
-        value={formatSignedNumber(summary.totalProfitLoss)}
+        value={formatSignedNumber(summary.totalProfitLoss, 2, scale)}
         trend={trend}
         emphasis
       />

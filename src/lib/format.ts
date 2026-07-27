@@ -20,9 +20,18 @@ export function toFiniteNumber(value: unknown): number | null {
   return Number.isFinite(n) ? n : null;
 }
 
+/** 將金額乘上顯示倍率；任一輸入無效或結果溢位時回傳 null。 */
+export function scaleAmount(value: unknown, scale = 1): number | null {
+  const amount = toFiniteNumber(value);
+  const multiplier = toFiniteNumber(scale);
+  if (amount === null || multiplier === null || multiplier <= 0) return null;
+  const scaled = amount * multiplier;
+  return Number.isFinite(scaled) ? scaled : null;
+}
+
 /** 金額（新台幣，無小數）；非數字回傳 "—"。 */
-export function formatCurrency(value: unknown): string {
-  const n = toFiniteNumber(value);
+export function formatCurrency(value: unknown, scale = 1): string {
+  const n = scaleAmount(value, scale);
   return n === null ? "—" : TWD.format(n);
 }
 
@@ -53,8 +62,8 @@ export function formatPercentPlain(value: unknown, fractionDigits = 1): string {
 }
 
 /** 帶正負號的損益金額（例如 +1,234 / -567）；非數字回傳 "—"。 */
-export function formatSignedNumber(value: unknown, fractionDigits = 2): string {
-  const n = toFiniteNumber(value);
+export function formatSignedNumber(value: unknown, fractionDigits = 2, scale = 1): string {
+  const n = scaleAmount(value, scale);
   if (n === null) return "—";
   const sign = n > 0 ? "+" : "";
   return `${sign}${formatNumber(n, fractionDigits)}`;

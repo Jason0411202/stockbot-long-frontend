@@ -15,7 +15,9 @@ import {
 } from "chart.js";
 import { Line } from "react-chartjs-2";
 
+import { useAmountScale } from "@/contexts/AmountScaleContext";
 import type { PerformanceHistoryPoint } from "@/lib/api/types";
+import { scaleAmount } from "@/lib/format";
 import {
   formatByUnit,
   UNIT_LABELS,
@@ -54,11 +56,15 @@ interface PerformanceOverlayChartProps {
  * 讓不同量綱的指標能在同一張圖上交叉比對。null 值畫成斷點（如 go-live 前的實盤線）。
  */
 export function PerformanceOverlayChart({ points, series }: PerformanceOverlayChartProps) {
+  const { scale } = useAmountScale();
   const { data, options } = useMemo(() => {
     const labels = points.map((p) => p.date);
     const datasets = series.map((s) => ({
       label: s.label,
-      data: points.map((p) => s.accessor(p)),
+      data: points.map((p) => {
+        const value = s.accessor(p);
+        return s.unit === "twd" ? scaleAmount(value, scale) : value;
+      }),
       borderColor: s.color,
       backgroundColor: s.color,
       borderWidth: 2,
@@ -128,7 +134,7 @@ export function PerformanceOverlayChart({ points, series }: PerformanceOverlayCh
     };
 
     return { data: chartData, options: chartOptions };
-  }, [points, series]);
+  }, [points, scale, series]);
 
   if (series.length === 0) {
     return <p className={styles.overlayEmpty}>請於上方至少勾選一個指標。</p>;
