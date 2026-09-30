@@ -10,6 +10,7 @@ import type { UnrealizedGainLoss } from "@/lib/api/types";
 import {
   formatCurrency,
   formatNumber,
+  formatShares,
   formatPercent,
   formatSignedNumber,
   trendOf,
@@ -33,7 +34,7 @@ function createColumns(scale: number): ReadonlyArray<Column<UnrealizedGainLoss>>
       ),
     },
     { key: "price", header: "買入價", numeric: true, render: (r) => formatNumber(r.transaction_price) },
-    { key: "shares", header: "股數", numeric: true, render: (r) => formatNumber(r.shares, 0) },
+    { key: "shares", header: "股數", numeric: true, render: (r) => formatShares(r.shares) },
     { key: "cost", header: "投資成本", numeric: true, render: (r) => formatCurrency(r.investment_cost, scale) },
     { key: "now_price", header: "估值價", numeric: true, render: (r) => formatNumber(r.todayClosePrice) },
     { key: "quote_date", header: "估值日期 / 來源", render: (r) => `${r.price_date || "日期待更新"} · ${r.price_basis === "opening_fill" ? "開盤成交暫估" : "收盤"}` },

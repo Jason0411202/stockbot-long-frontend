@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   formatCurrency,
+  formatShares,
   formatMultiple,
   formatNumber,
   formatPercent,
@@ -114,5 +115,14 @@ describe("trendOf", () => {
     expect(trendOf(-1)).toBe("loss");
     expect(trendOf(0)).toBe("neutral");
     expect(trendOf("nope")).toBe("neutral");
+  });
+});
+
+
+describe("formatShares", () => {
+  it("preserves fractional holdings without padding integer quantities", () => {
+    expect(formatShares(1528)).toBe("1,528");
+    expect(formatShares(1 / 7)).toBe("0.14285714");
+    expect(formatShares(null)).toBe("—");
   });
 });

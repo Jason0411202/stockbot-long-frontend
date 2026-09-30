@@ -10,6 +10,7 @@ import type { RealizedGainLoss } from "@/lib/api/types";
 import {
   formatCurrency,
   formatNumber,
+  formatShares,
   formatPercent,
   formatSignedNumber,
   trendOf,
@@ -35,7 +36,7 @@ function createColumns(scale: number): ReadonlyArray<Column<RealizedGainLoss>> {
     },
     { key: "buy_price", header: "買入價", numeric: true, render: (r) => formatNumber(r.purchase_price) },
     { key: "sell_price", header: "賣出價", numeric: true, render: (r) => formatNumber(r.sell_price) },
-    { key: "shares", header: "股數", numeric: true, render: (r) => formatNumber(r.shares, 0) },
+    { key: "shares", header: "股數", numeric: true, render: (r) => formatShares(r.shares) },
     { key: "cost", header: "投資成本", numeric: true, render: (r) => formatCurrency(r.investment_cost, scale) },
     { key: "revenue", header: "賣出收入", numeric: true, render: (r) => formatCurrency(r.revenue, scale) },
     {

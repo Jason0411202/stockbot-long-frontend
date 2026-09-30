@@ -95,3 +95,11 @@ export function trendOf(value: unknown): Trend {
   if (n === null || n === 0) return "neutral";
   return n > 0 ? "profit" : "loss";
 }
+
+/** Share quantities may include fractional equivalents; never round them to zero. */
+export function formatShares(value: unknown): string {
+  const n = toFiniteNumber(value);
+  return n === null ? "—" : new Intl.NumberFormat("zh-TW", {
+    maximumFractionDigits: 8,
+  }).format(n);
+}
