@@ -23,7 +23,8 @@ export function useStockChart(stockId: string | undefined) {
   const { data, error, isLoading } = useSWR<MergedHistoryPoint[]>(
     stockId ? ["stock_chart", stockId] : null,
     () => fetchStockChart(stockId as string),
-    { revalidateOnFocus: false, shouldRetryOnError: false },
+    { revalidateOnFocus: true,
+  refreshInterval: 60_000, shouldRetryOnError: false },
   );
   return { points: data, error, isLoading };
 }

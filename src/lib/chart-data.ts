@@ -46,7 +46,7 @@ export function mergeHistoryWithTrades(
   const unrealizedByDate = new Map<string, number>();
   for (const row of unrealized) {
     if (row.stock_id === stockId) {
-      unrealizedByDate.set(row.transaction_date, row.investment_cost);
+      unrealizedByDate.set(row.transaction_date, (unrealizedByDate.get(row.transaction_date) ?? 0) + row.investment_cost);
     }
   }
 
@@ -54,7 +54,7 @@ export function mergeHistoryWithTrades(
   const realizedSellRevenueByDate = new Map<string, number>();
   for (const row of realized) {
     if (row.stock_id !== stockId) continue;
-    realizedBuyByDate.set(row.buy_date, row.investment_cost);
+    realizedBuyByDate.set(row.buy_date, (realizedBuyByDate.get(row.buy_date) ?? 0) + row.investment_cost);
     realizedSellRevenueByDate.set(
       row.sell_date,
       (realizedSellRevenueByDate.get(row.sell_date) ?? 0) + row.revenue,

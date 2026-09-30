@@ -49,14 +49,14 @@ export function getStockHistory(
   return apiGet<StockHistoryPoint[]>(`${ENDPOINTS.history}?${query.toString()}`, signal);
 }
 
-/** 取得策略績效摘要（本金明細 + 實盤現況 + 回測 scorecard）。 */
+/** 取得策略績效摘要（本金明細 + 模擬帳本現況 + 回測 scorecard）。 */
 export function getPerformanceSummary(
   signal?: AbortSignal,
 ): Promise<PerformanceSummary> {
   return apiGet<PerformanceSummary>(ENDPOINTS.performance, signal);
 }
 
-/** 取得實盤每日權益歷史（真實帳戶總權益時間序列，供歷史權益折線圖）。 */
+/** 取得模擬帳本每日權益歷史（真實帳戶總權益時間序列，供歷史權益折線圖）。 */
 export function getEquityHistory(
   signal?: AbortSignal,
 ): Promise<LiveEquityPoint[]> {
@@ -64,7 +64,7 @@ export function getEquityHistory(
 }
 
 /**
- * 取得統一的逐日績效時間序列（回測 + 實盤同一條時間軸），供歷史頁可勾選疊圖。
+ * 取得統一的逐日績效時間序列（回測 + 模擬帳本同一條時間軸），供歷史頁可勾選疊圖。
  * 契約見 docs/backend-request-performance-history.md。
  */
 export function getPerformanceHistory(

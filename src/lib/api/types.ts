@@ -11,6 +11,8 @@
 
 /** GET /api/get_unrealized_gains_losses 的單筆回應。 */
 export interface UnrealizedGainLoss {
+  price_date?: string;
+  price_basis?: "close" | "opening_fill";
   /** 交易日期 (YYYY-MM-DD) */
   transaction_date: string;
   stock_id: string;
@@ -21,7 +23,7 @@ export interface UnrealizedGainLoss {
   investment_cost: number;
   /** 持有股數 */
   shares: number;
-  /** 即時收盤價；查詢失敗時為 0（唯一 camelCase 欄位） */
+  /** 最近可用估值價；查詢失敗時為 0（唯一 camelCase 欄位） */
   todayClosePrice: number;
   /** 持股現值 (= 今收 × 股數) */
   now_value: number;
@@ -71,10 +73,14 @@ export interface StockHistoryPoint {
 }
 
 /**
- * GET /api/get_performance_summary 的回應：一次回傳「本金明細 + 實盤現況 + 回測指標」。
+ * GET /api/get_performance_summary 的回應：一次回傳「本金明細 + 模擬帳本現況 + 回測指標」。
  * 本金（investing principal）指從外部注入股市的資金（期初一次性 + 每月定額），不含滾出的獲利。
  */
 export interface PerformanceSummary {
+  valuation_date?: string;
+  valuation_basis?: string;
+  strategy_version?: string;
+  trading_mode?: string;
   // ── 本金明細（外部注入，非滾出的獲利） ──
   /** 期初一次性投入本金 */
   initial_cash: number;
@@ -85,10 +91,10 @@ export interface PerformanceSummary {
   /** 投入本金合計 = 期初 + 累計注資 */
   total_invested: number;
 
-  // ── 實盤現況（真實帳本 + BotState） ──
+  // ── 模擬帳本現況（每 60 秒更新 · 僅模擬記帳） ──
   /** 目前閒置現金（未投入股市的預備現金） */
   current_cash: number;
-  /** 目前持股市值（即時收盤價估） */
+  /** 目前持股市值（最近可用估值價估） */
   holding_value: number;
   /** 總權益 = 現金 + 持股市值 */
   total_equity: number;
@@ -220,7 +226,7 @@ export interface WalkForwardScore {
 /**
  * GET /api/get_equity_history 的單筆回應：某交易日收盤後的真實帳戶權益快照。
  * 資料來源為線上引擎逐日寫入的 EquityHistory 表（升冪，等距取樣最多 400 點）；
- * 與回測 equity_curve 不同，此為「真實帳本走勢」，隨上線運行逐日累積。
+ * 與回測 equity_curve 不同，此為「歷史帳本走勢」，隨上線運行逐日累積。
  */
 export interface LiveEquityPoint {
   /** 交易日 (YYYY-MM-DD) */
@@ -235,12 +241,12 @@ export interface LiveEquityPoint {
 
 /**
  * GET /api/get_performance_history 的單筆回應：某交易日的「統一績效快照」。
- * 同一條時間軸同時承載回測（模擬，全期皆有值）與實盤（真實，go-live 後才有，之前為 null）。
- * 因回測每日依最新資料重跑、與實盤共享右端（今天），故不拆成兩支端點。
+ * 同一條時間軸同時承載回測（模擬，全期皆有值）與模擬帳本（真實，go-live 後才有，之前為 null）。
+ * 因回測每日依最新資料重跑、與模擬帳本共享右端（今天），故不拆成兩支端點。
  *
  * 契約見 docs/backend-request-performance-history.md（後端尚未實作前，以 mock 對接）。
  * 比率／倍數／報酬率欄位邊界可能為 null（對應後端 JSONFloat 的 NaN/±Inf）。
- * 實盤欄位（cash…max_drawdown）在 go-live 之前為 null。
+ * 模擬帳本欄位（cash…max_drawdown）在 go-live 之前為 null。
  */
 export interface PerformanceHistoryPoint {
   /** 交易日 (YYYY-MM-DD)，升冪 */
@@ -261,36 +267,36 @@ export interface PerformanceHistoryPoint {
   strat_return_rate: number | null;
   /** 買進持有累積報酬率 (%) */
   bh_return_rate: number | null;
-  /** 策略到當日滾動最大回撤 (%；≤ 0) */
+  /** 策略當日距歷史高點回撤 (%；≤ 0) */
   strat_drawdown: number | null;
-  /** 買進持有到當日滾動最大回撤 (%) */
+  /** 買進持有當日距歷史高點回撤 (%) */
   bh_drawdown: number | null;
   /** 策略到當日年化報酬 (%) */
   strat_cagr: number | null;
 
-  // ── 實盤（真實帳本；go-live 前各欄為 null） ──
+  // ── 模擬帳本（歷史帳本；go-live 前各欄為 null） ──
   /** 預備現金 */
   cash: number | null;
   /** 持股市值 */
   holding_value: number | null;
-  /** 實盤總權益 */
+  /** 模擬帳本總權益 */
   total_equity: number | null;
   /** 持股佔比 (%) */
   holding_ratio: number | null;
   /** 現金佔比 (%) */
   cash_ratio: number | null;
-  /** 總損益 = 實盤總權益 − 投入本金 */
+  /** 總損益 = 模擬帳本總權益 − 投入本金 */
   total_pnl: number | null;
-  /** 實盤累積報酬率 (%) */
+  /** 模擬帳本累積報酬率 (%) */
   total_return_rate: number | null;
-  /** 實盤本金倍數 */
+  /** 模擬帳本本金倍數 */
   multiple: number | null;
   /** 累計已實現損益（到當日） */
   realized_pnl: number | null;
   /** 當日未實現損益 */
   unrealized_pnl: number | null;
-  /** 實盤到當日年化報酬 (%) */
+  /** 模擬帳本到當日年化報酬 (%) */
   cagr: number | null;
-  /** 實盤到當日滾動最大回撤 (%) */
+  /** 模擬帳本到當日滾動最大回撤 (%) */
   max_drawdown: number | null;
 }

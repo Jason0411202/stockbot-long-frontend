@@ -53,7 +53,7 @@ interface PerformanceOverlayChartProps {
 
 /**
  * 多指標疊圖：每個勾選的指標一條線，依單位分配到金額／百分比／倍數三條 Y 軸，
- * 讓不同量綱的指標能在同一張圖上交叉比對。null 值畫成斷點（如 go-live 前的實盤線）。
+ * 讓不同量綱的指標能在同一張圖上交叉比對。null 值畫成斷點（如 go-live 前的模擬帳本線）。
  */
 export function PerformanceOverlayChart({ points, series }: PerformanceOverlayChartProps) {
   const { scale } = useAmountScale();

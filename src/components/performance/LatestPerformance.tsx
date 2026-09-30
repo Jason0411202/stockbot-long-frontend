@@ -14,7 +14,7 @@ import { TradeStats } from "./TradeStats";
 import styles from "./performance.module.css";
 
 /**
- * 總覽頁的「最新策略績效」快照：實盤現況 → 資產配置 → 回測對照 → 穩健性 → 資金與交易明細。
+ * 總覽頁的「最新策略績效」快照：模擬帳本現況 → 資產配置 → 回測對照 → 穩健性 → 資金與交易明細。
  * 只呈現「當前最新」狀態；隨時間變化的歷史走勢請見「歷史策略績效」。
  */
 export function LatestPerformance() {
@@ -27,7 +27,7 @@ export function LatestPerformance() {
       <MessageState
         tone="error"
         title="無法載入策略績效"
-        description="請確認後端服務已啟動，且 NEXT_PUBLIC_BACKEND_URL 設定正確。"
+        description="資料暫時無法載入，請稍後重新整理。"
       />
     );
   }
@@ -36,12 +36,17 @@ export function LatestPerformance() {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-8)" }}>
-      <section className={styles.section} aria-label="實盤現況">
+      <section className={styles.section} aria-label="模擬帳本現況">
         <div className={styles.sectionHead}>
-          <h2 className={styles.sectionTitle}>實盤現況</h2>
-          <span className={styles.sectionMeta}>真實帳本 + BotState</span>
+          <h2 className={styles.sectionTitle}>模擬帳本現況</h2>
+          <span className={styles.sectionMeta}>每 60 秒更新 · 僅模擬記帳</span>
         </div>
         <EquityOverview summary={summary} />
+        <p className={styles.sectionMeta}>
+          估值資料：{summary.valuation_date || "依各部位最近資料"} 起
+          {summary.valuation_basis === "close" ? " · 收盤價" : " · 含開盤成交暫估，日期依部位而異"}。
+          模擬以開盤價記帳，未計手續費、稅與滑價，並無券商成交。
+        </p>
       </section>
 
       <section className={styles.section} aria-label="資產配置">

@@ -56,7 +56,7 @@ export function AmountScaleSettings({ onClose }: AmountScaleSettingsProps) {
       return;
     }
     if (liveEquity === null || liveEquity <= 0) {
-      setMessage("目前無法取得大於 0 的實盤總權益，請稍後再試或手動設定。");
+      setMessage("目前無法取得大於 0 的模擬帳本總權益，請稍後再試或手動設定。");
       return;
     }
 
@@ -164,10 +164,10 @@ export function AmountScaleSettings({ onClose }: AmountScaleSettingsProps) {
           </div>
           <p className={styles.help}>
             {isLoading
-              ? "正在取得實盤總權益…"
+              ? "正在取得模擬帳本總權益…"
               : summaryError
-                ? "實盤總權益載入失敗，仍可使用上方手動設定。"
-                : `目前實盤總權益（原始值）：${formatCurrency(summary?.total_equity)}`}
+                ? "模擬帳本總權益載入失敗，仍可使用上方手動設定。"
+                : `目前模擬帳本總權益（原始值）：${formatCurrency(summary?.total_equity)}`}
           </p>
         </form>
 

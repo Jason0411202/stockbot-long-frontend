@@ -6,11 +6,12 @@ import { getPerformanceHistory } from "@/lib/api/endpoints";
 import type { PerformanceHistoryPoint } from "@/lib/api/types";
 
 const SWR_OPTIONS = {
-  revalidateOnFocus: false,
+  revalidateOnFocus: true,
+  refreshInterval: 60_000,
   shouldRetryOnError: false,
 } as const;
 
-/** 取得統一的逐日績效時間序列（回測 + 實盤同一條時間軸），供歷史頁可勾選疊圖。 */
+/** 取得統一的逐日績效時間序列（回測 + 模擬帳本同一條時間軸），供歷史頁可勾選疊圖。 */
 export function usePerformanceHistory() {
   const { data, error, isLoading } = useSWR<PerformanceHistoryPoint[]>(
     "performance_history",

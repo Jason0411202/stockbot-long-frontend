@@ -76,6 +76,13 @@ function mp(
 }
 
 describe("mergeHistoryWithTrades", () => {
+	it("adds all sold fragments to the original purchase marker", () => {
+		const rows=mergeHistoryWithTrades([hp("2026-03-02",20)],[],[
+			rgl("00631L","2026-03-02","2026-04-01",29768.70,31000),
+			rgl("00631L","2026-03-02","2026-05-01",50400.54,55000),
+		],"00631L");
+		expect(rows[0].realizedInvestmentCost).toBeCloseTo(80169.24,2);
+	});
   const history = [hp("2025-01-01", 10), hp("2025-01-02", 11), hp("2025-01-03", 12)];
 
   it("依股號過濾，並把買/賣資訊併入對應日期；同日賣出收入加總", () => {

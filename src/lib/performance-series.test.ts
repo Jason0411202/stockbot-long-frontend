@@ -35,7 +35,7 @@ describe("formatByUnit", () => {
     expect(formatByUnit(-18.4, "pct")).toBe("-18.40%");
   });
 
-  it("null/undefined 回傳破折號（go-live 前的實盤值）", () => {
+  it("null/undefined 回傳破折號（go-live 前的模擬帳本值）", () => {
     expect(formatByUnit(null, "twd")).toBe("—");
     expect(formatByUnit(undefined, "pct")).toBe("—");
   });

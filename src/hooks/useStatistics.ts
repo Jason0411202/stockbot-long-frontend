@@ -9,7 +9,8 @@ export function useStockStatistics() {
   const { data, error, isLoading } = useSWR<StockStatistic[]>(
     "stock_statistic_data",
     () => getStockStatistics(),
-    { revalidateOnFocus: false, shouldRetryOnError: false },
+    { revalidateOnFocus: true,
+  refreshInterval: 60_000, shouldRetryOnError: false },
   );
   return { rows: data, error, isLoading };
 }

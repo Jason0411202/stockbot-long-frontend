@@ -18,7 +18,7 @@ export function roundAmountScale(value: number): number | null {
   return Number(scale.toPrecision(12));
 }
 
-/** 依「使用者總資金 ÷ 實盤總權益」計算顯示倍率。 */
+/** 依「使用者總資金 ÷ 模擬帳本總權益」計算顯示倍率。 */
 export function calculateAmountScale(capital: unknown, liveEquity: unknown): number | null {
   const normalizedCapital = normalizeAmountScale(capital);
   const normalizedEquity = normalizeAmountScale(liveEquity);

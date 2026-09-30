@@ -13,7 +13,7 @@ interface EquityOverviewProps {
   summary: PerformanceSummary;
 }
 
-/** 實盤總權益 bento：總權益（主格）＋ 報酬率、總損益、四個帳本副格。 */
+/** 模擬帳本總權益 bento：總權益（主格）＋ 報酬率、總損益、四個帳本副格。 */
 export function EquityOverview({ summary }: EquityOverviewProps) {
   const { scale } = useAmountScale();
   const trend = trendOf(summary.total_pnl);
@@ -23,7 +23,7 @@ export function EquityOverview({ summary }: EquityOverviewProps) {
       <div className={styles.equityHero}>
         <span className={styles.liveTag}>
           <span className={styles.liveDot} aria-hidden="true" />
-          實盤總權益 · LIVE
+          模擬帳本總權益 · 模擬
         </span>
         <span className={`${styles.equityValue} num`}>
           {formatCurrency(summary.total_equity, scale)}

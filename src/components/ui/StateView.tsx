@@ -44,7 +44,7 @@ export function StateView<T>({
           <>
             {errorMessage(error)}
             <br />
-            請確認後端服務已啟動，且 NEXT_PUBLIC_BACKEND_URL 設定正確。
+            資料暫時無法載入，請稍後重新整理。
           </>
         }
       />

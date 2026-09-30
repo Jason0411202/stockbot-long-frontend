@@ -8,7 +8,7 @@ interface CapitalBreakdownProps {
   summary: PerformanceSummary;
 }
 
-/** 資金與帳本明細：本金注入（外部資金）＋ 實盤帳本現況。 */
+/** 資金與帳本明細：本金注入（外部資金）＋ 模擬帳本帳本現況。 */
 export function CapitalBreakdown({ summary }: CapitalBreakdownProps) {
   const { scale } = useAmountScale();
 
@@ -27,7 +27,7 @@ export function CapitalBreakdown({ summary }: CapitalBreakdownProps) {
       <Metric label="累計注資" value={formatCurrency(summary.total_contributed, scale)} />
       <Metric label="投入本金合計" value={formatCurrency(summary.total_invested, scale)} />
 
-      <p className={styles.metricGroupLabel}>實盤帳本現況</p>
+      <p className={styles.metricGroupLabel}>模擬帳本帳本現況</p>
       <Metric label="閒置現金" value={formatCurrency(summary.current_cash, scale)} />
       <Metric label="持股市值" value={formatCurrency(summary.holding_value, scale)} />
       <Metric

@@ -9,7 +9,8 @@ import {
 import type { RealizedGainLoss, UnrealizedGainLoss } from "@/lib/api/types";
 
 const SWR_OPTIONS = {
-  revalidateOnFocus: false,
+  revalidateOnFocus: true,
+  refreshInterval: 60_000,
   shouldRetryOnError: false,
 } as const;
 

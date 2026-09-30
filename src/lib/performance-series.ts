@@ -14,7 +14,7 @@ import { formatCurrency, formatMultiple, formatPercentPlain } from "./format";
 
 /** Y 軸單位群組。 */
 export type SeriesUnit = "twd" | "pct" | "mult";
-/** 指標來源分組（共用 / 實盤 / 回測）。 */
+/** 指標來源分組（共用 / 模擬帳本 / 回測）。 */
 export type SeriesSource = "common" | "live" | "backtest";
 
 export interface SeriesDef {
@@ -34,8 +34,8 @@ export const SERIES: readonly SeriesDef[] = [
   // ── 共用 ──
   { key: "invested", label: "投入本金", source: "common", unit: "twd", color: "#8b97a8", dash: true, accessor: (p) => p.invested },
 
-  // ── 實盤帳戶 ──
-  { key: "total_equity", label: "實盤總權益", source: "live", unit: "twd", color: "#ef4d52", accessor: (p) => p.total_equity },
+  // ── 模擬帳本帳戶 ──
+  { key: "total_equity", label: "模擬帳本總權益", source: "live", unit: "twd", color: "#ef4d52", accessor: (p) => p.total_equity },
   { key: "holding_value", label: "持股市值", source: "live", unit: "twd", color: "#f59e0b", accessor: (p) => p.holding_value },
   { key: "cash", label: "預備現金", source: "live", unit: "twd", color: "#fbbf24", accessor: (p) => p.cash },
   { key: "total_pnl", label: "總損益", source: "live", unit: "twd", color: "#fb923c", accessor: (p) => p.total_pnl },
@@ -75,7 +75,7 @@ export const DEFAULT_SELECTED: readonly string[] = [
 
 export const SOURCE_LABELS: Readonly<Record<SeriesSource, string>> = {
   common: "共用",
-  live: "實盤帳戶",
+  live: "模擬帳本帳戶",
   backtest: "回測（模擬）",
 };
 

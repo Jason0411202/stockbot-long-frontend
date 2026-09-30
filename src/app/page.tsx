@@ -7,7 +7,7 @@ const FEATURES = [
   {
     href: "/unrealized_gains_losses",
     title: "未實現損益",
-    desc: "持有中部位的帳面損益，依即時收盤價估算。",
+    desc: "持有中部位的帳面損益，依最近可用估值價估算。",
     tag: "Portfolio",
   },
   {
@@ -25,7 +25,7 @@ const FEATURES = [
   {
     href: "/performance",
     title: "歷史策略績效",
-    desc: "以時間軸折線圖呈現實盤每日權益與回測權益曲線。",
+    desc: "以時間軸折線圖呈現模擬帳本每日權益與回測權益曲線。",
     tag: "History",
   },
 ] as const;
@@ -41,7 +41,7 @@ export default function HomePage() {
           <span className={styles.titleAccent}>模擬交易系統</span>
         </h1>
         <p className={styles.lead}>
-          牛熊 regime 感知的逢低加碼策略。下方為最新策略績效快照——實盤總權益、
+          牛熊 regime 感知的逢低加碼策略。下方為最新策略績效快照——模擬帳本總權益、
           資產配置，以及對照「買進持有」的全期回測與多視窗 walk-forward
           穩健性檢驗。想看隨時間變化的走勢，請見「歷史策略績效」。
         </p>

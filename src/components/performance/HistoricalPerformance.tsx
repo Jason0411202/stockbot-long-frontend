@@ -21,7 +21,7 @@ const COOKIE_KEY = "perf_overlay_series";
 
 /**
  * 歷史策略績效：所有「有時間軸」的指標疊在同一張折線圖，使用者自選要看哪些線交叉比對。
- * 回測與實盤共享同一條時間軸（回測每日依實盤重跑），不拆兩支。勾選狀態以 cookie 記住。
+ * 回測與模擬帳本共享同一條時間軸（回測每日依模擬帳本重跑），不拆兩支。勾選狀態以 cookie 記住。
  */
 export function HistoricalPerformance() {
   const { points, error, isLoading } = usePerformanceHistory();
@@ -77,13 +77,17 @@ export function HistoricalPerformance() {
       <MessageState
         tone="muted"
         title="歷史資料尚未就緒"
-        description="待回測曲線與實盤每日權益累積足夠資料後，這裡會顯示可勾選的多指標走勢圖。"
+        description="待回測曲線與模擬帳本每日權益累積足夠資料後，這裡會顯示可勾選的多指標走勢圖。"
       />
     );
   }
 
   return (
     <div className={styles.overlayPage}>
+      <p className={styles.sectionMeta}>
+        模擬帳本保留歷次策略的既有交易，並按當日收盤重新估值；全期回測則由目前策略從期初重跑。
+        兩者起始持倉與策略沿革不同，曲線不必相同。收盤未齊的當日不列入歷史權益。
+      </p>
       <div className={styles.rangeToolbar}>
         <span className={styles.rangeToolbarLabel}>時間區間</span>
         <RangeSelector value={range} onChange={setRange} />

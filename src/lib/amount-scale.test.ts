@@ -34,7 +34,7 @@ describe("roundAmountScale", () => {
 });
 
 describe("calculateAmountScale", () => {
-  it("以使用者總資金除以實盤總權益", () => {
+  it("以使用者總資金除以模擬帳本總權益", () => {
     expect(calculateAmountScale(2_500_000, 1_000_000)).toBe(2.5);
   });
 
