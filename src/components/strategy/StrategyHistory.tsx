@@ -14,9 +14,10 @@ export function StrategyHistory({ selectedDate, snapshotDate, onSelect }: Props)
   const { history, error, isLoading, isValidating, refresh } = useStrategyMonitorHistory();
   const entries = history?.entries ?? [];
   const currentDate = selectedDate || snapshotDate || history?.newest_date || "";
-  const index = entries.findIndex((entry) => entry.decision_date === currentDate);
-  const older = entries[index + 1];
-  const newer = entries[index - 1];
+  // The latest snapshot can arrive before the next index poll.
+  const older = entries.find((entry) => entry.decision_date < currentDate);
+  const newer = entries.findLast((entry) => entry.decision_date > currentDate);
+  const latestDate = selectedDate ? history?.newest_date : snapshotDate || history?.newest_date;
   const backfill = history?.backfill;
   const busy = backfill?.status === "pending" || backfill?.status === "running";
   const progress = backfill && backfill.total > 0 ? Math.min(100, Math.max(0, backfill.completed / backfill.total * 100)) : 0;
@@ -32,14 +33,14 @@ export function StrategyHistory({ selectedDate, snapshotDate, onSelect }: Props)
         <div className={styles.dateField}>
           <label htmlFor="strategy-decision-date">決策日期</label>
           <select id="strategy-decision-date" value={selectedDate} onChange={(event) => onSelect(event.target.value)}>
-            <option value="">最新決策{history?.newest_date ? ` · ${history.newest_date}` : ""}</option>
+            <option value="">最新決策{latestDate ? ` · ${latestDate}` : ""}</option>
             {selectedMissing ? <option value={selectedDate}>{selectedDate}</option> : null}
             {entries.map((entry) => <option key={entry.decision_date} value={entry.decision_date}>{entry.decision_date} · {entry.source === "reconstructed" ? "歷史重建" : "原始決策"}{entry.availability === "unavailable" ? " · 資料不足" : ""}</option>)}
           </select>
         </div>
         <div className={styles.historyNavigation}>
-          <Button size="sm" disabled={index < 0 || !older} onClick={() => onSelect(older.decision_date)} aria-label="前一次">← 前一次</Button>
-          <Button size="sm" disabled={index < 0 || !newer} onClick={() => onSelect(newer.decision_date)} aria-label="後一次">後一次 →</Button>
+          <Button size="sm" disabled={!older} onClick={() => onSelect(older!.decision_date)} aria-label="前一次">← 前一次</Button>
+          <Button size="sm" disabled={!newer} onClick={() => onSelect(newer!.decision_date)} aria-label="後一次">後一次 →</Button>
           <Button size="sm" disabled={!selectedDate} onClick={() => onSelect("")}>最新決策</Button>
         </div>
       </div>

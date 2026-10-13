@@ -216,6 +216,28 @@ test("前後日期按保存紀錄跳轉，首尾按鈕停用且最新決策恢�
   await expect(page.getByText(reconstructedWarning, { exact: true })).toHaveCount(0);
 });
 
+test("最新快照比日期清單更新時，標示真正日期並可跳回前一次", async ({ page }) => {
+  await mockHistory(page);
+  const newer = makeStrategyMonitor();
+  newer.decision_date = "2026-10-14";
+  newer.recorded_at = "2026-10-14T09:00:00+08:00";
+  newer.stocks[0].decision_price = 117.25;
+  await page.route(monitorEndpoint, (route) => {
+    const date = new URL(route.request().url()).searchParams.get("date");
+    return route.fulfill({ json: date === "2026-10-13" ? makeStrategyMonitor() : newer });
+  });
+  await page.goto("/strategy_monitor");
+  await expect(stockArticle(page)).toContainText("117.25");
+  const date = page.getByLabel("決策日期", { exact: true });
+  await expect(date.locator("option:checked")).toContainText("2026-10-14");
+  const previous = page.getByRole("button", { name: "前一次", exact: true });
+  await expect(previous).toBeEnabled();
+  await previous.click();
+  await expect(date).toHaveValue("2026-10-13");
+  await expect(stockArticle(page)).toContainText("116.40");
+  await expect(stockArticle(page)).not.toContainText("117.25");
+});
+
 test("載入其他日期時立即移除舊日期圖表，日期選擇器仍可見", async ({ page }) => {
   await mockHistory(page);
   let releaseRequest: (() => void) | undefined;
