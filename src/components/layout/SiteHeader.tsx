@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { AmountScaleSettings } from "@/components/settings/AmountScaleSettings";
 import { useAmountScale } from "@/contexts/AmountScaleContext";
@@ -14,6 +14,7 @@ const NAV_LINKS = [
   { href: "/unrealized_gains_losses", label: "未實現損益" },
   { href: "/realized_gains_losses", label: "已實現損益" },
   { href: "/stock_statistic_data", label: "追蹤標的" },
+  { href: "/strategy_monitor", label: "策略監控" },
   { href: "/performance", label: "歷史策略績效" },
 ] as const;
 
@@ -26,6 +27,17 @@ export function SiteHeader() {
   const pathname = usePathname();
   const { scale } = useAmountScale();
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const navRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    const nav = navRef.current;
+    if (nav && nav.scrollWidth > nav.clientWidth) {
+      nav.querySelector<HTMLElement>('[aria-current="page"]')?.scrollIntoView({
+        block: "nearest",
+        inline: "center",
+      });
+    }
+  }, [pathname]);
 
   return (
     <header className={styles.header}>
@@ -37,7 +49,7 @@ export function SiteHeader() {
           </span>
         </Link>
 
-        <nav className={styles.nav} aria-label="主導覽">
+        <nav ref={navRef} className={styles.nav} aria-label="主導覽">
           {NAV_LINKS.map((link) => {
             const active = isActive(pathname, link.href);
             return (
