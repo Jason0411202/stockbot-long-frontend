@@ -11,6 +11,9 @@ export interface StrategyMonitor {
   source?: "original" | "reconstructed";
   strategy_version?: string;
   warnings?: string[];
+  revision?: "initial" | "ledger-cashflow-v2";
+  supersedes_revision?: "initial";
+  reconstruction_base_version?: string;
   stocks: StrategyMonitorStock[];
 }
 
@@ -33,6 +36,8 @@ export interface StrategyHistoryEntry {
   recorded_at: string;
   strategy_version: string;
   availability: "available" | "unavailable";
+  revision?: "initial" | "ledger-cashflow-v2";
+  has_initial_revision?: boolean;
 }
 
 export interface StrategyMonitorStock {

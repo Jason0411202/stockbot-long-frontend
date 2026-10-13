@@ -1,17 +1,20 @@
 "use client";
 
 import { Button } from "@/components/ui/Button";
-import { useStrategyMonitorHistory } from "@/hooks/useStrategyMonitor";
+import type { useStrategyMonitorHistory } from "@/hooks/useStrategyMonitor";
 import styles from "./strategy.module.css";
 
 interface Props {
   selectedDate: string;
   snapshotDate?: string;
   onSelect: (date: string) => void;
+  selectedRevision: string;
+  onRevision: (revision: string) => void;
+  historyState: ReturnType<typeof useStrategyMonitorHistory>;
 }
 
-export function StrategyHistory({ selectedDate, snapshotDate, onSelect }: Props) {
-  const { history, error, isLoading, isValidating, refresh } = useStrategyMonitorHistory();
+export function StrategyHistory({ selectedDate, snapshotDate, onSelect, selectedRevision, onRevision, historyState }: Props) {
+  const { history, error, isLoading, isValidating, refresh } = historyState;
   const entries = history?.entries ?? [];
   const currentDate = selectedDate || snapshotDate || history?.newest_date || "";
   // The latest snapshot can arrive before the next index poll.
@@ -22,6 +25,7 @@ export function StrategyHistory({ selectedDate, snapshotDate, onSelect }: Props)
   const busy = backfill?.status === "pending" || backfill?.status === "running";
   const progress = backfill && backfill.total > 0 ? Math.min(100, Math.max(0, backfill.completed / backfill.total * 100)) : 0;
   const selectedMissing = selectedDate && !entries.some((entry) => entry.decision_date === selectedDate);
+  const hasRevisions = entries.some((entry) => entry.decision_date === currentDate && entry.has_initial_revision);
 
   return (
     <section className={styles.history} aria-label="決策歷史">
@@ -44,6 +48,14 @@ export function StrategyHistory({ selectedDate, snapshotDate, onSelect }: Props)
           <Button size="sm" disabled={!selectedDate} onClick={() => onSelect("")}>最新決策</Button>
         </div>
       </div>
+      {hasRevisions || selectedRevision ? <div className={styles.revisionField}>
+        <label htmlFor="strategy-revision">紀錄版本</label>
+        <select id="strategy-revision" value={selectedRevision} onChange={(event) => onRevision(event.target.value)}>
+          <option value="">修正版 · 帳本成交總額</option>
+          <option value="initial">初版紀錄（保留）</option>
+        </select>
+        <span>初版完整保留，可切換對照。</span>
+      </div> : null}
       {error ? <div role="alert" className={styles.historyError}><span>歷史清單暫時無法載入，已載入的決策仍可查看。</span><Button size="sm" disabled={isValidating} onClick={() => { void refresh().catch(() => undefined); }}>重試歷史清單</Button></div> : null}
       {backfill ? <div className={styles.backfill} data-status={backfill.status} role="status" aria-label="歷史重建進度" aria-live="polite">
         <div><span className={styles.backfillLabel}>{busy ? "歷史資料自動回補中" : backfill.status === "failed" ? "自動回補暫未完成" : "歷史資料已保存"}</span><span>{busy ? `${backfill.completed.toLocaleString("zh-TW")} / ${backfill.total.toLocaleString("zh-TW")} 次` : history?.oldest_date && history?.newest_date ? `${history.oldest_date} — ${history.newest_date}` : "等待決策紀錄"}</span></div>

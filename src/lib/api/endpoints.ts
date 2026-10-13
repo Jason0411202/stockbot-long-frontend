@@ -24,8 +24,11 @@ export const ENDPOINTS = {
   strategyMonitorHistory: "/api/get_strategy_monitor_history",
 } as const;
 
-export function getStrategyMonitor(date?: string, signal?: AbortSignal): Promise<StrategyMonitor> {
-  const query = date ? `?${new URLSearchParams({ date })}` : "";
+export function getStrategyMonitor(date?: string, revision?: string, signal?: AbortSignal): Promise<StrategyMonitor> {
+  const params = new URLSearchParams();
+  if (date) params.set("date", date);
+  if (revision) params.set("revision", revision);
+  const query = params.size ? `?${params}` : "";
   return apiGet<StrategyMonitor>(`${ENDPOINTS.strategyMonitor}${query}`, signal);
 }
 

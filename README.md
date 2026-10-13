@@ -68,7 +68,7 @@ API client 集中在 [`src/lib/api/`](src/lib/api/)；型別 [`types.ts`](src/li
 | `getRealizedGainsLosses()` | `GET /api/get_realized_gains_losses` |
 | `getStockStatistics()` | `GET /api/get_stock_statistic_data` |
 | `getStockHistory(stockId)` | `GET /api/get_stock_history_data?stockId=…` |
-| `getStrategyMonitor(date?)` | `GET /api/get_strategy_monitor?date=YYYY-MM-DD`（省略日期取得最新紀錄） |
+| `getStrategyMonitor(date?, revision?)` | `GET /api/get_strategy_monitor?date=YYYY-MM-DD`（省略日期取得最新紀錄） |
 | `getStrategyMonitorHistory()` | `GET /api/get_strategy_monitor_history`（日期索引與自動回補進度） |
 
 > 後端詳見 <https://github.com/Jason0411202/stockbot-long-backend>（`docs/api.md`）。
@@ -86,6 +86,10 @@ API client 集中在 [`src/lib/api/`](src/lib/api/)；型別 [`types.ts`](src/li
 回補使用當前策略、歷史行情與帳本還原的狀態；畫面標示「歷史重建」、策略版本及資料限制，不冒充當時保存的原始快照。
 原始與重建紀錄皆保存完整圖表資料，日後策略設定改動不影響已保存的歷史。
 這是唯讀監控頁，切換日期與自動回補不會執行交易。缺資料會明確顯示原因。
+
+針對早期回補曾以截位單價反推現金的紀錄，後端會另存 `ledger-cashflow-v2` 修正版，採用帳本原始成交總額並沿用初版策略設定。
+初版資料完整保留；日期上方的「紀錄版本」可切換對照。預設顯示修正版，切換日期時恢復預設版本。
+單日 API 可加 `revision=initial` 或 `revision=ledger-cashflow-v2` 指定版本；版本與日期共用 SWR cache key，讀取失敗不沿用其他版本圖表。
 
 ## 測試與檢查
 

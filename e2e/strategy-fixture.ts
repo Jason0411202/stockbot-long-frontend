@@ -228,6 +228,37 @@ export function makeUnavailableHistoryMonitor(): StrategyMonitor {
   };
 }
 
+export function makeInitialRevisionMonitor(date = "2026-10-12"): StrategyMonitor {
+  const snapshot = date === "2026-10-08" ? makeUnavailableHistoryMonitor() : makeReconstructedMonitor();
+  snapshot.revision = "initial";
+  if (date === "2026-10-08") snapshot.message = "當日現金與帳本無法對齊，無法可靠還原決策。";
+  return snapshot;
+}
+
+export function makeCorrectedHistoryMonitor(date = "2026-10-12"): StrategyMonitor {
+  const snapshot = makeReconstructedMonitor();
+  snapshot.decision_date = date;
+  snapshot.recorded_at = "2026-10-14T10:30:00+08:00";
+  snapshot.revision = "ledger-cashflow-v2";
+  snapshot.supersedes_revision = "initial";
+  snapshot.reconstruction_base_version = snapshot.strategy_version;
+  snapshot.strategy_version = "test-strategy-ledger-cashflow-v2";
+  snapshot.message = "此修正版使用帳本原始成本與收入還原現金，保留初版供查閱。";
+  snapshot.warnings = [reconstructedWarning];
+  for (const stock of snapshot.stocks) {
+    stock.indicator_date = date === "2026-10-08" ? "2026-10-07" : "2026-10-08";
+    for (const decision of [stock.buy, stock.sell]) {
+      decision.cash_before -= 1.13;
+      decision.cash_after -= 1.13;
+    }
+    const cash = stock.buy.conditions.find((condition) => condition.id === "available_cash");
+    if (cash?.value !== null && cash?.value !== undefined) cash.value -= 1.13;
+    const budget = stock.buy.metrics.find((metric) => metric.id === "budget_basis");
+    if (budget?.value !== null && budget?.value !== undefined) budget.value -= 1.13;
+  }
+  return snapshot;
+}
+
 export function makeStrategyMonitorHistory(
   snapshots: StrategyMonitor[] = [makeStrategyMonitor(), makeReconstructedMonitor(), makeUnavailableHistoryMonitor()],
 ): StrategyMonitorHistory {
@@ -238,6 +269,8 @@ export function makeStrategyMonitorHistory(
     recorded_at: snapshot.recorded_at,
     strategy_version: snapshot.strategy_version ?? "",
     availability: snapshot.availability,
+    ...(snapshot.revision ? { revision: snapshot.revision } : {}),
+    ...(snapshot.supersedes_revision === "initial" ? { has_initial_revision: true } : {}),
   })).sort((a, b) => b.decision_date.localeCompare(a.decision_date));
   return {
     entries,

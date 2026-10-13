@@ -4,10 +4,10 @@ import useSWR from "swr";
 import { ENDPOINTS, getStrategyMonitor, getStrategyMonitorHistory } from "@/lib/api/endpoints";
 import type { StrategyMonitor, StrategyMonitorHistory } from "@/lib/api/strategy-types";
 
-export function useStrategyMonitor(date = "") {
+export function useStrategyMonitor(date = "", revision = "", latestVersion = "") {
   const { data, error, isLoading, isValidating, mutate } = useSWR<StrategyMonitor>(
-    [ENDPOINTS.strategyMonitor, date],
-    () => getStrategyMonitor(date),
+    [ENDPOINTS.strategyMonitor, date, revision, latestVersion],
+    () => getStrategyMonitor(date, revision),
     { revalidateOnFocus: !date, refreshInterval: date ? 0 : 60_000, shouldRetryOnError: false, keepPreviousData: false },
   );
   return { snapshot: data, error, isLoading, isValidating, refresh: () => mutate() };
