@@ -1,4 +1,4 @@
-/** Actual committed decision snapshots. Percentages use 8 = 8%, never 0.08. */
+/** Frozen original or reconstructed decisions. Percentages use 8 = 8%, never 0.08. */
 export interface StrategyMonitor {
   schema_version: number;
   availability: "available" | "unavailable";
@@ -8,7 +8,31 @@ export interface StrategyMonitor {
   decision_price_basis: "open" | "close";
   execution_mode: "live" | "catchup";
   indicator_rule: string;
+  source?: "original" | "reconstructed";
+  strategy_version?: string;
+  warnings?: string[];
   stocks: StrategyMonitorStock[];
+}
+
+export interface StrategyMonitorHistory {
+  entries: StrategyHistoryEntry[];
+  oldest_date: string;
+  newest_date: string;
+  backfill: {
+    status: "pending" | "running" | "complete" | "failed";
+    completed: number;
+    total: number;
+    message: string;
+  };
+}
+
+export interface StrategyHistoryEntry {
+  decision_date: string;
+  source: "original" | "reconstructed";
+  execution_mode: "live" | "catchup";
+  recorded_at: string;
+  strategy_version: string;
+  availability: "available" | "unavailable";
 }
 
 export interface StrategyMonitorStock {

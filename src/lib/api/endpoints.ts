@@ -1,7 +1,7 @@
 /** 後端業務端點的型別化包裝（路徑對應 internal/server/server.go）。 */
 
 import { apiGet } from "./client";
-import type { StrategyMonitor } from "./strategy-types";
+import type { StrategyMonitor, StrategyMonitorHistory } from "./strategy-types";
 import type {
   LiveEquityPoint,
   PerformanceHistoryPoint,
@@ -21,10 +21,16 @@ export const ENDPOINTS = {
   equityHistory: "/api/get_equity_history",
   performanceHistory: "/api/get_performance_history",
   strategyMonitor: "/api/get_strategy_monitor",
+  strategyMonitorHistory: "/api/get_strategy_monitor_history",
 } as const;
 
-export function getStrategyMonitor(signal?: AbortSignal): Promise<StrategyMonitor> {
-  return apiGet<StrategyMonitor>(ENDPOINTS.strategyMonitor, signal);
+export function getStrategyMonitor(date?: string, signal?: AbortSignal): Promise<StrategyMonitor> {
+  const query = date ? `?${new URLSearchParams({ date })}` : "";
+  return apiGet<StrategyMonitor>(`${ENDPOINTS.strategyMonitor}${query}`, signal);
+}
+
+export function getStrategyMonitorHistory(signal?: AbortSignal): Promise<StrategyMonitorHistory> {
+  return apiGet<StrategyMonitorHistory>(ENDPOINTS.strategyMonitorHistory, signal);
 }
 
 export function getUnrealizedGainsLosses(

@@ -55,7 +55,7 @@ npm run dev
 | `/unrealized_gains_losses` | 未實現損益（持倉、即時帳面損益、彙總） |
 | `/realized_gains_losses` | 已實現損益（平倉紀錄、彙總） |
 | `/stock_statistic_data` | 追蹤標的統計（連到個股圖） |
-| `/strategy_monitor` | 依股票分組的實際決策快照：買入／賣出條件、門檻圖、冷卻剩餘與執行結果 |
+| `/strategy_monitor` | 決策歷史：按日期查看各股票買入／賣出門檻圖、冷卻與結果，缺漏自動回補 |
 | `/stocks/[stockId]` | 個股歷史收盤價折線圖 + 買入／賣出標記點 + 時間範圍切換 |
 
 ## 與後端對接
@@ -68,19 +68,24 @@ API client 集中在 [`src/lib/api/`](src/lib/api/)；型別 [`types.ts`](src/li
 | `getRealizedGainsLosses()` | `GET /api/get_realized_gains_losses` |
 | `getStockStatistics()` | `GET /api/get_stock_statistic_data` |
 | `getStockHistory(stockId)` | `GET /api/get_stock_history_data?stockId=…` |
-| `getStrategyMonitor()` | `GET /api/get_strategy_monitor` |
+| `getStrategyMonitor(date?)` | `GET /api/get_strategy_monitor?date=YYYY-MM-DD`（省略日期取得最新紀錄） |
+| `getStrategyMonitorHistory()` | `GET /api/get_strategy_monitor_history`（日期索引與自動回補進度） |
 
 > 後端詳見 <https://github.com/Jason0411202/stockbot-long-backend>（`docs/api.md`）。
 
 ### 策略監控
 
-`/strategy_monitor` 每 60 秒讀取一次 `GET /api/get_strategy_monitor`，也可手動更新。
-畫面以後端已提交的實際決策為準：開盤決策價、指標截止日、各股買入前及賣出前的條件、成交結果一起保存。
+`/strategy_monitor` 以日期選擇器、前一次／後一次與回到最新取代手動更新快照。
+預設最新紀錄，每 60 秒自動讀取；選定歷史日期後保持該日期，不會被背景更新切回最新。
+日期清單在回補期間每 10 秒讀取進度，完成後每 60 秒更新。讀取失敗仍可切換日期，且不會用另一日期的圖表替代。
+新決策永久保存原始快照：決策價、指標截止日、各股買入前及賣出前條件與成交結果一起寫入帳本交易。
 買入與賣出各項主要門檻預設展開，計算細節可另外展開；冷卻是決策當時的日曆天數，另列解除日期。
 百分比使用 `8 = 8%`，門檻判定完全由後端提供；前端圖表不重新判斷交易訊號。金額倍率只套用帳本金額。
 
-升級前沒有保存的決策不會回填成假快照；後端更新後，等待下一次決策成功提交即可看到資料。
-這是唯讀監控頁，重新整理不會執行交易。背景更新失敗會保留舊快照並提示，缺資料則明確顯示等待狀態。
+已有紀錄保持原樣。從機器人帳本開始，有成交或每日權益紀錄的缺漏決策日會在後端自動回補。
+回補使用當前策略、歷史行情與帳本還原的狀態；畫面標示「歷史重建」、策略版本及資料限制，不冒充當時保存的原始快照。
+原始與重建紀錄皆保存完整圖表資料，日後策略設定改動不影響已保存的歷史。
+這是唯讀監控頁，切換日期與自動回補不會執行交易。缺資料會明確顯示原因。
 
 ## 測試與檢查
 

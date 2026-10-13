@@ -10,6 +10,7 @@ import { ApiError } from "@/lib/api/client";
 import type { ConditionStatus, DecisionStatus, StrategyCondition, StrategyDecision, StrategyMonitorStock } from "@/lib/api/strategy-types";
 import { formatCurrency, formatNumber, formatShares, scaleAmount } from "@/lib/format";
 import styles from "./strategy.module.css";
+import { StrategyHistory } from "./StrategyHistory";
 
 const DECISION_LABELS: Record<DecisionStatus, string> = {
   executed: "已執行", blocked: "等待條件", eligible: "條件成立", inactive: "不適用", unavailable: "資料不足",
@@ -69,7 +70,7 @@ function ThresholdChart({ condition }: { condition: StrategyCondition }) {
         <span className={styles.threshold} style={{ left: `${targetPosition}%` }} />
         <span className={styles.current} style={{ left: `${currentPosition}%` }} />
       </div>
-      <div className={styles.chartLegend}><span><i />目前值</span><span><i />門檻線</span></div>
+      <div className={styles.chartLegend}><span><i />當次值</span><span><i />門檻線</span></div>
     </div>
   );
 }
@@ -98,7 +99,7 @@ function Condition({ condition }: { condition: StrategyCondition }) {
   );
 }
 
-function DecisionSection({ side, decision, stockId }: { side: "buy" | "sell"; decision: StrategyDecision; stockId: string }) {
+function DecisionSection({ side, decision, stockId, reconstructed }: { side: "buy" | "sell"; decision: StrategyDecision; stockId: string; reconstructed: boolean }) {
   const { scale } = useAmountScale();
   const buy = side === "buy";
   const id = `${stockId}-${side}`;
@@ -124,14 +125,14 @@ function DecisionSection({ side, decision, stockId }: { side: "buy" | "sell"; de
             <div><dt>此階段持股變化</dt><dd className="num">{formatShares(decision.held_shares_before)} → {formatShares(decision.held_shares_after)} 股</dd></div>
             <div><dt>此階段現金變化</dt><dd className="num">{formatCurrency(decision.cash_before, scale)} → {formatCurrency(decision.cash_after, scale)}</dd></div>
           </dl>
-          <p className={styles.conditionNote}>按機器人實際處理順序記錄；同日買入會先於賣出評估。{scale !== 1 ? `帳本金額與現金門檻套用 ${formatNumber(scale)}× 顯示倍率；股價、股數、百分比與天數維持原值。` : ""}</p>
+          <p className={styles.conditionNote}>{reconstructed ? "依重建時的策略計算條件，成交與持股依歷史帳本還原。" : "按機器人實際處理順序記錄；同日買入會先於賣出評估。"}{scale !== 1 ? `帳本金額與現金門檻套用 ${formatNumber(scale)}× 顯示倍率；股價、股數、百分比與天數維持原值。` : ""}</p>
         </div>
       </details>
     </section>
   );
 }
 
-function StockPanel({ stock, date, basis }: { stock: StrategyMonitorStock; date: string; basis: string }) {
+function StockPanel({ stock, date, basis, reconstructed }: { stock: StrategyMonitorStock; date: string; basis: string; reconstructed: boolean }) {
   return (
     <article className={styles.stock} aria-label={`${stock.stock_id} 策略監控`}>
       <header className={styles.stockHead}>
@@ -142,35 +143,42 @@ function StockPanel({ stock, date, basis }: { stock: StrategyMonitorStock; date:
         <div className={styles.quote}><span>{date} · {basis === "open" ? "開盤" : "收盤"}決策價</span><strong className="num">{valueText(stock.decision_price, "price")}</strong></div>
       </header>
       <div className={styles.stockMeta}><span>指標截至 <b className="num">{stock.indicator_date || "—"}</b></span><span>決策前持股 <b className="num">{formatShares(stock.buy.held_shares_before)} 股</b></span><span>決策後持股 <b className="num">{formatShares(stock.sell.held_shares_after)} 股</b></span>{stock.regime_method === "ma_pos" ? <span>前收 <b className="num">{valueText(stock.regime_value, "price")}</b>／{stock.regime_window} 日均線 <b className="num">{valueText(stock.regime_base, "price")}</b>{stock.regime_base === null ? "（資料不足，沿用策略空頭判定）" : ""}</span> : null}</div>
-      <div className={styles.decisions}><DecisionSection side="buy" decision={stock.buy} stockId={stock.stock_id} /><DecisionSection side="sell" decision={stock.sell} stockId={stock.stock_id} /></div>
+      <div className={styles.decisions}><DecisionSection side="buy" decision={stock.buy} stockId={stock.stock_id} reconstructed={reconstructed} /><DecisionSection side="sell" decision={stock.sell} stockId={stock.stock_id} reconstructed={reconstructed} /></div>
     </article>
   );
 }
 
 export function StrategyMonitor() {
-  const { snapshot, error, isLoading, isValidating, refresh } = useStrategyMonitor();
+  const [selectedDate, setSelectedDate] = useState("");
+  const { snapshot, error, isLoading, isValidating, refresh } = useStrategyMonitor(selectedDate);
   const [selectedStock, setSelectedStock] = useState("all");
   const reload = () => { void refresh().catch(() => undefined); };
-  if (isLoading && !snapshot) return <div role="status" aria-label="載入策略快照"><TableSkeleton rows={8} cols={2} /><p className={styles.loading}>正在取得最近一次決策…</p></div>;
-  if (!snapshot) return <MessageState tone="error" title="無法載入策略監控" description={error instanceof ApiError && error.status === 404 ? "目前後端尚未提供策略監控，請更新後端服務後再試。" : "目前無法取得決策快照，請稍後重新載入。"} action={<Button onClick={reload} disabled={isValidating}>重新載入</Button>} />;
-  if (snapshot.schema_version !== 1) return <MessageState tone="error" title="策略資料版本不相容" description="請更新前端後再查看此快照。" action={<Button onClick={reload}>重新載入</Button>} />;
+  const history = <StrategyHistory selectedDate={selectedDate} snapshotDate={snapshot?.decision_date} onSelect={setSelectedDate} />;
+  const wrap = (content: React.ReactNode) => <div className={styles.monitor}>{history}{content}</div>;
+  if (isLoading && !snapshot) return wrap(<div role="status" aria-label="載入策略快照"><TableSkeleton rows={8} cols={2} /><p className={styles.loading}>正在取得{selectedDate || "最新"}決策…</p></div>);
+  if (!snapshot) return wrap(<MessageState tone="error" title="無法載入策略監控" description={error instanceof ApiError && error.status === 404 ? selectedDate ? `${selectedDate} 尚無可讀取的決策紀錄，請選擇其他日期或稍後重試。` : "目前後端尚未提供策略監控，請更新後端服務後再試。" : `目前無法取得${selectedDate || "最新"}決策，請稍後重新載入或選擇其他日期。`} action={<Button onClick={reload} disabled={isValidating}>重新載入</Button>} />);
+  if (snapshot.schema_version !== 1) return wrap(<MessageState tone="error" title="策略資料版本不相容" description="請更新前端後再查看此快照。" action={<Button onClick={reload}>重新載入</Button>} />);
+  if (selectedDate && snapshot.decision_date !== selectedDate) return wrap(<MessageState tone="error" title="決策日期不符" description="後端回傳的紀錄與選取日期不一致，請稍後重試。" action={<Button onClick={reload}>重新載入</Button>} />);
   const stocks = snapshot.stocks ?? [];
+  const reconstructed = snapshot.source === "reconstructed";
   const selection = stocks.some((stock) => stock.stock_id === selectedStock) ? selectedStock : "all";
   const visibleStocks = selection === "all" ? stocks : stocks.filter((stock) => stock.stock_id === selection);
   return (
     <div className={styles.monitor}>
-      <div className={styles.toolbar}><span className={styles.liveLabel}><i />實際決策快照<span>· 唯讀</span></span><Button size="sm" onClick={reload} disabled={isValidating}>{isValidating ? "更新中…" : "更新快照"}</Button></div>
+      {history}
+      <div className={styles.toolbar}><span className={styles.liveLabel} data-source={snapshot.source}><i />{reconstructed ? "歷史重建" : "原始決策快照"}<span>· 唯讀</span></span>{snapshot.strategy_version ? <span className={styles.version} title={snapshot.strategy_version}>策略版本 {snapshot.strategy_version}</span> : null}</div>
       {error ? <div role="alert" className={styles.warning}>更新失敗，以下保留上次取得的快照。請檢查決策日期後，再試一次。</div> : null}
-      {snapshot.availability !== "available" || stocks.length === 0 ? <MessageState title="等待第一份決策快照" description={snapshot.message || "後端尚未記錄策略快照；下一次決策成功完成後會顯示在這裡。"} /> : <>
+      {reconstructed || snapshot.warnings?.length ? <aside className={styles.provenance} aria-label="紀錄來源說明"><strong>{reconstructed ? "以當前策略與歷史行情重建" : "紀錄說明"}</strong>{reconstructed ? <p>此日期未保存完整的原始快照。圖表呈現回補時的策略規則；成交結果依歷史帳本還原，可能與重建條件不同。此紀錄保存後不再隨策略改動。</p> : null}{snapshot.warnings?.length ? <details><summary>查看重建依據與資料限制</summary><ul>{snapshot.warnings.map((warning, index) => <li key={index}>{warning}</li>)}</ul></details> : null}</aside> : null}
+      {snapshot.availability !== "available" || stocks.length === 0 ? <MessageState title={snapshot.decision_date ? `${snapshot.decision_date} · 決策資料不足` : "等待決策歷史"} description={snapshot.message || "後端正在整理歷史紀錄，完成後會自動顯示；新決策也會持續保存。"} /> : <>
         <section className={styles.overview} aria-label="決策摘要">
-          <div className={styles.snapshotDate}><span className={styles.eyebrow}>最近一次決策</span><strong className="num">{snapshot.decision_date}</strong><span>模擬帳本 · {snapshot.execution_mode === "catchup" ? "歷史補算" : "每日決策"}</span></div>
+          <div className={styles.snapshotDate}><span className={styles.eyebrow}>{selectedDate ? "歷史決策" : "最新決策"}</span><strong className="num">{snapshot.decision_date}</strong><span>模擬帳本 · {reconstructed ? "歷史重建" : snapshot.execution_mode === "catchup" ? "歷史補算" : "每日決策"}</span></div>
           <div className={styles.summaryMetric}><span>追蹤標的</span><strong className="num">{stocks.length.toString().padStart(2, "0")}<small>檔</small></strong></div>
           <div className={styles.summaryMetric} data-side="buy"><span>本次已買入</span><strong className="num">{stocks.filter((s) => s.buy.status === "executed").length.toString().padStart(2, "0")}<small>檔</small></strong></div>
           <div className={styles.summaryMetric} data-side="sell"><span>本次已賣出</span><strong className="num">{stocks.filter((s) => s.sell.status === "executed").length.toString().padStart(2, "0")}<small>檔</small></strong></div>
         </section>
         <div className={styles.context}><p>{snapshot.indicator_rule || "條件與冷卻以決策當時為準。"} 冷卻剩餘天數固定於此快照；解除日後仍需等待下一次交易日決策。</p><span>快照記錄 {timeText(snapshot.recorded_at)}（台北）</span></div>
         <div className={styles.filterBar}><div role="group" aria-label="股票篩選" className={styles.filters}><Button size="sm" active={selection === "all"} aria-pressed={selection === "all"} onClick={() => setSelectedStock("all")}>全部股票</Button>{stocks.map((stock) => <Button key={stock.stock_id} size="sm" active={selection === stock.stock_id} aria-pressed={selection === stock.stock_id} onClick={() => setSelectedStock(stock.stock_id)}>{stock.stock_id}</Button>)}</div><span>買入與賣出條件逐項檢視</span></div>
-        {visibleStocks.map((stock) => <StockPanel key={stock.stock_id} stock={stock} date={snapshot.decision_date} basis={snapshot.decision_price_basis} />)}
+        {visibleStocks.map((stock) => <StockPanel key={`${snapshot.decision_date}-${stock.stock_id}`} stock={stock} date={snapshot.decision_date} basis={snapshot.decision_price_basis} reconstructed={reconstructed} />)}
         <p className={styles.footnote}>門檻線表示策略設定；色點表示該次決策使用的數值。各條件需依策略同時成立，圖表長度不代表交易機率。</p>
       </>}
     </div>

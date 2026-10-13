@@ -3,6 +3,35 @@
 .liveLabel { display: inline-flex; align-items: center; gap: 9px; font-size: 13px; color: var(--color-text); }
 .liveLabel > i { width: 6px; height: 6px; border-radius: 50%; background: var(--color-accent); box-shadow: 0 0 12px var(--color-accent-soft); }
 .liveLabel > span { color: var(--color-text-muted); }
+.liveLabel[data-source="reconstructed"] > i { background: #dfbe80; box-shadow: none; }
+.version { color: var(--color-text-faint); font-size: 11px; overflow-wrap: anywhere; max-width: 100%; }
+.history { padding: 24px 28px; background: var(--color-bg-elevated); border: 1px solid var(--color-border); border-radius: var(--radius-lg); }
+.historyHeading { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 22px; }
+.historyHeading h2 { margin-top: 6px; font-size: 17px; font-weight: 500; }
+.historyCount { font-size: 12px; color: var(--color-text-muted); white-space: nowrap; }
+.historyControls { display: flex; align-items: flex-end; gap: 14px 24px; flex-wrap: wrap; }
+.dateField { display: flex; flex: 1 1 240px; flex-direction: column; gap: 7px; min-width: 0; }
+.dateField label { font-size: 11px; color: var(--color-text-muted); }
+.dateField select { width: 100%; min-width: 0; padding: 11px 12px; border: 1px solid var(--color-border-strong); border-radius: 8px; background: var(--color-surface-raised); color: var(--color-text); font: 13px var(--font-sans); color-scheme: dark; }
+.dateField select:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 3px; }
+.historyNavigation { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; padding-bottom: 2px; }
+.backfill { margin-top: 22px; padding-top: 16px; border-top: 1px solid var(--color-border); color: var(--color-text-muted); font-size: 11px; }
+.backfill > div { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+.backfillLabel { color: var(--color-text); }
+.backfill[data-status="running"] .backfillLabel, .backfill[data-status="pending"] .backfillLabel { color: var(--color-accent); }
+.backfill[data-status="failed"] .backfillLabel { color: #dfbe80; }
+.backfill p { margin-top: 6px; line-height: 1.8; }
+.backfill progress { appearance: none; display: block; width: 100%; height: 4px; margin: 12px 0; border: 0; border-radius: 4px; overflow: hidden; background: var(--color-surface-raised); accent-color: var(--color-accent); }
+.backfill progress::-webkit-progress-bar { background: var(--color-surface-raised); }
+.backfill progress::-webkit-progress-value { background: var(--color-accent); }
+.backfill progress::-moz-progress-bar { background: var(--color-accent); }
+.historyError { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; margin-top: 18px; color: #dfbe80; font-size: 12px; }
+.provenance { padding: 16px 20px; border: 1px solid #dfbe8030; border-left: 2px solid #dfbe80; border-radius: 0 8px 8px 0; background: #dfbe8008; font-size: 12px; color: var(--color-text-muted); line-height: 1.8; }
+.provenance strong { color: #dfbe80; font-weight: 500; }
+.provenance p { margin-top: 5px; }
+.provenance details { margin-top: 8px; }
+.provenance summary { cursor: pointer; }
+.provenance ul { padding-left: 18px; margin-top: 8px; overflow-wrap: anywhere; }
 .overview { display: grid; grid-template-columns: 1.65fr 1fr 1fr 1fr; padding: 28px 30px; gap: 24px; border: 1px solid var(--color-border); border-radius: var(--radius-lg); background: linear-gradient(115deg, var(--color-accent-soft), transparent 55%), var(--color-bg-elevated); }
 .snapshotDate { display: flex; flex-direction: column; gap: 8px; }
 .eyebrow { font-size: 10px; letter-spacing: 0.12em; color: var(--color-text-muted); font-weight: 600; }
@@ -93,6 +122,10 @@
   .decision { padding: 22px 20px; }
 }
 @media (max-width: 680px) {
+  .history { padding: 20px; }
+  .historyHeading { align-items: flex-start; flex-direction: column; gap: 10px; }
+  .historyHeading h2 { font-size: 16px; }
+  .historyNavigation { width: 100%; justify-content: space-between; gap: 5px; }
   .overview { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px 12px; padding: 22px; }
   .snapshotDate { grid-column: 1 / -1; padding-bottom: 18px; border-bottom: 1px solid var(--color-border); }
   .snapshotDate > strong { font-size: 27px; }

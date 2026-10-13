@@ -1,4 +1,4 @@
-import type { StrategyMonitor } from "../src/lib/api/strategy-types";
+import type { StrategyMonitor, StrategyMonitorHistory } from "../src/lib/api/strategy-types";
 import type { PerformanceSummary } from "../src/lib/api/types";
 
 /** A decision snapshot, not a forecast: the cooldown is frozen at decision time. */
@@ -10,6 +10,9 @@ export const strategyMonitorFixture: StrategyMonitor = {
   recorded_at: "2026-10-13T09:00:00+08:00",
   decision_price_basis: "open",
   execution_mode: "live",
+  source: "original",
+  strategy_version: "test-strategy-original-v1",
+  warnings: [],
   indicator_rule: "僅使用決策日前已完成的收盤資料",
   stocks: [
     {
@@ -168,6 +171,80 @@ export const strategyMonitorFixture: StrategyMonitor = {
 
 export function makeStrategyMonitor(): StrategyMonitor {
   return structuredClone(strategyMonitorFixture);
+}
+
+export const reconstructedWarning = "此快照使用目前策略設定與歷史價格重建，並非當日保存的原始決策。";
+
+export function makeReconstructedMonitor(): StrategyMonitor {
+  const snapshot = makeStrategyMonitor();
+  snapshot.decision_date = "2026-10-12";
+  snapshot.recorded_at = "2026-10-13T10:30:00+08:00";
+  snapshot.source = "reconstructed";
+  snapshot.execution_mode = "catchup";
+  snapshot.strategy_version = "test-strategy-reconstructed-v2";
+  snapshot.warnings = [reconstructedWarning];
+  for (const stock of snapshot.stocks) stock.indicator_date = "2026-10-08";
+  const stock = snapshot.stocks[0];
+  stock.decision_price = 104.4;
+  stock.regime = "bear";
+  stock.regime_value = 106;
+  const entry = stock.buy.conditions.find((condition) => condition.id === "entry_price")!;
+  entry.value = 104.4;
+  entry.threshold = 110;
+  entry.description = "空頭決策價須嚴格低於 10 日均線 110 元，仍需通過冷卻條件。";
+  stock.buy.conditions.find((condition) => condition.id === "order_size")!.value = 5;
+  stock.buy.conditions.find((condition) => condition.id === "available_cash")!.threshold = 104.4;
+  stock.buy.metrics.find((metric) => metric.id === "buy_band")!.value = 0;
+  const cooldown = stock.buy.conditions.find((condition) => condition.id === "buy_cooldown")!;
+  cooldown.value = 9;
+  cooldown.remaining_days = 5;
+  cooldown.release_date = "2026-10-17";
+  cooldown.description = "距離上次買入 9 個日曆日，冷卻門檻為 14 個日曆日。";
+  stock.sell.status = "executed";
+  stock.sell.reasons = ["歷史重建：空頭移動停利成立，已模擬賣出 1,000 股"];
+  stock.sell.intended_shares = 1000;
+  stock.sell.executed_shares = 1000;
+  stock.sell.held_shares_after = 0;
+  stock.sell.cash_after = 129400;
+  const regime = stock.sell.conditions.find((condition) => condition.id === "bear_regime")!;
+  regime.value = 0;
+  regime.status = "passed";
+  const drawdown = stock.sell.conditions.find((condition) => condition.id === "trailing_drawdown")!;
+  drawdown.value = 13;
+  drawdown.status = "passed";
+  return snapshot;
+}
+
+export function makeUnavailableHistoryMonitor(): StrategyMonitor {
+  return {
+    ...structuredClone(unavailableStrategyMonitorFixture),
+    decision_date: "2026-10-08",
+    recorded_at: "2026-10-13T10:30:00+08:00",
+    execution_mode: "catchup",
+    source: "reconstructed",
+    strategy_version: "test-strategy-reconstructed-v2",
+    warnings: [reconstructedWarning],
+    message: "2026-10-08 的價格資料不足，無法重建決策；其他日期仍可查看。",
+  };
+}
+
+export function makeStrategyMonitorHistory(
+  snapshots: StrategyMonitor[] = [makeStrategyMonitor(), makeReconstructedMonitor(), makeUnavailableHistoryMonitor()],
+): StrategyMonitorHistory {
+  const entries = snapshots.filter((snapshot) => snapshot.decision_date).map((snapshot) => ({
+    decision_date: snapshot.decision_date,
+    source: snapshot.source ?? "original",
+    execution_mode: snapshot.execution_mode,
+    recorded_at: snapshot.recorded_at,
+    strategy_version: snapshot.strategy_version ?? "",
+    availability: snapshot.availability,
+  })).sort((a, b) => b.decision_date.localeCompare(a.decision_date));
+  return {
+    entries,
+    oldest_date: entries.at(-1)?.decision_date ?? "",
+    newest_date: entries[0]?.decision_date ?? "",
+    backfill: { status: "complete", completed: entries.length, total: entries.length, message: "歷史重建完成。" },
+  };
 }
 
 export const unavailableStrategyMonitorFixture: StrategyMonitor = {
