@@ -218,7 +218,7 @@ test("選擇歷史日期會更新價格與條件，並標示重建來源與警�
   await expect(drawdown.getByText("13.00%", { exact: true })).toBeVisible();
   await expect(drawdown.getByText("≥ 8.00%", { exact: true })).toBeVisible();
   await expect(stockArticle(page)).toContainText("剩餘 5 天");
-  await expect(page.getByLabel("紀錄來源說明").getByText("以當前策略與歷史行情重建", { exact: true })).toBeVisible();
+  await expect(page.getByLabel("紀錄來源說明").getByText("以回補當時策略與歷史行情重建", { exact: true })).toBeVisible();
   await page.getByText("查看重建依據與資料限制", { exact: true }).click();
   await expect(page.getByText(reconstructedWarning, { exact: true })).toBeVisible();
   expect(requestedDates).toContain("2026-10-12");

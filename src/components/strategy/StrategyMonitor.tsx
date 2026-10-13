@@ -174,6 +174,7 @@ export function StrategyMonitor() {
   const stocks = snapshot.stocks ?? [];
   const reconstructed = snapshot.source === "reconstructed";
   const corrected = snapshot.revision === "ledger-cashflow-v2";
+  const provenanceTitle = corrected ? "沿用初版策略與歷史行情重建" : reconstructed ? "以回補當時策略與歷史行情重建" : "紀錄說明";
   const initialWithCorrection = reconstructed && !corrected && historyState.history?.entries.some((entry) => entry.decision_date === snapshot.decision_date && entry.has_initial_revision);
   const selection = stocks.some((stock) => stock.stock_id === selectedStock) ? selectedStock : "all";
   const visibleStocks = selection === "all" ? stocks : stocks.filter((stock) => stock.stock_id === selection);
@@ -184,7 +185,7 @@ export function StrategyMonitor() {
       {error ? <div role="alert" className={styles.warning}>更新失敗，以下保留上次取得的快照。請檢查決策日期後，再試一次。</div> : null}
       {initialWithCorrection ? <div role="alert" className={styles.warning}>初版現金計算使用已截位單價；請以修正版為準。此處保留當時的完整紀錄供對照。</div> : null}
       {corrected ? <p className={styles.revisionNote}>現金依帳本保存的成交總額還原，沿用初版策略設定。初版紀錄仍可由上方切換查看。</p> : null}
-      {reconstructed || snapshot.warnings?.length ? <aside className={styles.provenance} aria-label="紀錄來源說明"><strong>{reconstructed ? "以當前策略與歷史行情重建" : "紀錄說明"}</strong>{reconstructed ? <p>此日期未保存完整的原始快照。圖表呈現回補時的策略規則；成交結果依歷史帳本還原，可能與重建條件不同。此紀錄保存後不再隨策略改動。</p> : null}{snapshot.warnings?.length ? <details><summary>查看重建依據與資料限制</summary><ul>{snapshot.warnings.map((warning, index) => <li key={index}>{warning}</li>)}</ul></details> : null}</aside> : null}
+      {reconstructed || snapshot.warnings?.length ? <aside className={styles.provenance} aria-label="紀錄來源說明"><strong>{provenanceTitle}</strong>{reconstructed ? <p>此日期未保存完整的原始快照。圖表採用此紀錄保存的策略設定；成交結果依歷史帳本還原，可能與重建條件不同。此紀錄保存後不再隨策略改動。</p> : null}{snapshot.warnings?.length ? <details><summary>查看重建依據與資料限制</summary><ul>{snapshot.warnings.map((warning, index) => <li key={index}>{warning}</li>)}</ul></details> : null}</aside> : null}
       {snapshot.availability !== "available" || stocks.length === 0 ? <MessageState title={snapshot.decision_date ? `${snapshot.decision_date} · 決策資料不足` : "等待決策歷史"} description={snapshot.message || "後端正在整理歷史紀錄，完成後會自動顯示；新決策也會持續保存。"} /> : <>
         <section className={styles.overview} aria-label="決策摘要">
           <div className={styles.snapshotDate}><span className={styles.eyebrow}>{selectedDate ? "歷史決策" : "最新決策"}</span><strong className="num">{snapshot.decision_date}</strong><span>模擬帳本 · {reconstructed ? "歷史重建" : snapshot.execution_mode === "catchup" ? "歷史補算" : "每日決策"}</span></div>
