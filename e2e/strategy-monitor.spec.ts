@@ -48,26 +48,42 @@ function cashCondition(page: Page) {
 
 async function mockRevisionMonitor(
   page: Page,
-  { correctedLatest = false, initialStatus = 200 }: { correctedLatest?: boolean; initialStatus?: number } = {},
+  { correctedLatest = false, correctedStatus = 200, staleIndex = false }: {
+    correctedLatest?: boolean;
+    correctedStatus?: number;
+    staleIndex?: boolean;
+  } = {},
 ) {
   const latest = correctedLatest ? makeCorrectedHistoryMonitor("2026-10-08") : makeStrategyMonitor();
   const snapshots = correctedLatest ? [latest] : [latest, makeCorrectedHistoryMonitor(), makeCorrectedHistoryMonitor("2026-10-08")];
+  for (const snapshot of snapshots) {
+    if (snapshot.revision === "ledger-cashflow-v2") {
+      snapshot.warnings?.push("現金以帳本保存的買入成本及出售收入重建，避免歷史成交價取位精度改變現金；初版保留，可切換查看。");
+    }
+  }
+  const history = makeStrategyMonitorHistory(snapshots);
+  if (staleIndex) {
+    const entry = history.entries.find((saved) => saved.decision_date === "2026-10-12")!;
+    entry.revision = "initial";
+    entry.has_initial_revision = false;
+  }
   const requests: Array<{ date: string | null; revision: string | null }> = [];
-  await mockHistory(page, makeStrategyMonitorHistory(snapshots));
+  await mockHistory(page, history);
   await page.route(monitorEndpoint, (route) => {
     const params = new URL(route.request().url()).searchParams;
     const date = params.get("date");
     const revision = params.get("revision");
     requests.push({ date, revision });
     if (revision && !date) return route.fulfill({ status: 400, json: { error: "Revision requires a date" } });
-    if (revision === "initial" && initialStatus !== 200) {
-      return route.fulfill({ status: initialStatus, json: { error: "Initial revision could not be loaded" } });
+    if (date === "2026-10-12" && revision !== "initial" && correctedStatus !== 200) {
+      return route.fulfill({ status: correctedStatus, json: { error: "Corrected revision could not be loaded" } });
     }
     const snapshot = !date ? latest
-      : date === "2026-10-13" ? makeStrategyMonitor()
       : revision === "initial" ? makeInitialRevisionMonitor(date)
-      : makeCorrectedHistoryMonitor(date);
-    return route.fulfill({ json: snapshot });
+      : snapshots.find((saved) => saved.decision_date === date);
+    return snapshot
+      ? route.fulfill({ json: snapshot })
+      : route.fulfill({ status: 404, json: { error: "No saved decision for this date" } });
   });
   return requests;
 }
@@ -493,97 +509,102 @@ test("切換既有金額倍率不會改變股價、百分比與冷卻天數", as
   await expect(drawdownGate.getByText("≥ 8.00%", { exact: true })).toBeVisible();
 });
 
-test("修正版讓原本不可用日期恢復圖表，初版仍可依版本查詢", async ({ page }, testInfo) => {
+test("修正版讓原本不可用日期恢復圖表，畫面只提供有效修正版", async ({ page }, testInfo) => {
   const requests = await mockRevisionMonitor(page, { correctedLatest: true });
   await page.goto("/strategy_monitor");
   await expect(stockArticle(page)).toContainText("104.40");
-  const revision = page.getByLabel("紀錄版本", { exact: true });
-  await expect(revision).toHaveValue("");
+  await expect(page.getByLabel("紀錄版本", { exact: true })).toHaveCount(0);
   await expect(page.getByText(/歷史重建\s*·\s*修正版/).first()).toBeVisible();
   await expect(cashCondition(page).getByText("$24,998.87", { exact: true })).toBeVisible();
-  await revision.selectOption("initial");
-  await expect(page.getByText(makeInitialRevisionMonitor("2026-10-08").message, { exact: true })).toBeVisible();
-  await expect(stockArticle(page)).toHaveCount(0);
-  await expect(page.getByLabel("決策日期", { exact: true })).toHaveValue("2026-10-08");
-  await expect(revision).toHaveValue("initial");
-  await expect(page.getByText("初版現金計算使用已截位單價；請以修正版為準。")).toBeVisible();
-  expect(requests).toContainEqual({ date: "2026-10-08", revision: "initial" });
-  await revision.selectOption("");
-  await expect(stockArticle(page)).toContainText("104.40");
-  await expect(cashCondition(page).getByText("$24,998.87", { exact: true })).toBeVisible();
+  await expect(page.getByText(makeInitialRevisionMonitor("2026-10-08").message, { exact: true })).toHaveCount(0);
+  await expect(page.getByLabel("決策日期", { exact: true })).toHaveValue("");
+  await page.getByText("查看重建依據與資料限制", { exact: true }).click();
+  await expect(page.getByLabel("紀錄來源說明")).not.toContainText("可切換查看");
+  await expect(page.getByLabel("紀錄來源說明")).toContainText("初版紀錄完整保留。");
+  await expect(page.getByText(reconstructedWarning, { exact: true })).toBeVisible();
+  await expect(page.getByText("初版紀錄仍可由上方切換查看。", { exact: false })).toHaveCount(0);
+  expect(requests.length).toBeGreaterThan(0);
+  expect(requests.every((request) => request.date === null && request.revision === null)).toBe(true);
   await page.screenshot({ path: testInfo.outputPath("strategy-corrected-revision.png") });
 });
 
-test("可用的初版保留同日原始現金，切版本不混用修正版數值", async ({ page }) => {
-  const requests = await mockRevisionMonitor(page);
+test("日期索引仍是初版時，省略版本查詢以取得已保存的修正版", async ({ page }) => {
+  const requests = await mockRevisionMonitor(page, { staleIndex: true });
   await page.goto("/strategy_monitor");
   await expect(stockArticle(page)).toBeVisible();
   await page.getByLabel("決策日期", { exact: true }).selectOption("2026-10-12");
-  const revision = page.getByLabel("紀錄版本", { exact: true });
   await expect(cashCondition(page).getByText("$24,998.87", { exact: true })).toBeVisible();
-  await revision.selectOption("initial");
-  await expect(cashCondition(page).getByText("$25,000.00", { exact: true })).toBeVisible();
-  await expect(cashCondition(page)).not.toContainText("24,998.87");
+  await expect(cashCondition(page)).not.toContainText("25,000.00");
   await expect(page.getByLabel("決策日期", { exact: true })).toHaveValue("2026-10-12");
-  await expect(page.getByText("初版現金計算使用已截位單價；請以修正版為準。")).toBeVisible();
-  expect(requests).toContainEqual({ date: "2026-10-12", revision: "initial" });
-  await revision.selectOption("");
-  await expect(cashCondition(page).getByText("$24,998.87", { exact: true })).toBeVisible();
-  await expect(page.getByText("初版現金計算使用已截位單價；請以修正版為準。")).toHaveCount(0);
+  await expect(page.getByLabel("紀錄版本", { exact: true })).toHaveCount(0);
+  await expect(page.getByText(/歷史重建\s*·\s*修正版/).first()).toBeVisible();
+  expect(requests).toContainEqual({ date: "2026-10-12", revision: null });
+  expect(requests.some((request) => request.revision === "initial")).toBe(false);
 });
 
-test("切換日期與最新決策會重設版本，不延續其他日期的初版", async ({ page }) => {
-  await mockRevisionMonitor(page);
+test("切日期、前後與最新決策都維持各日有效版本，不請求初版", async ({ page }) => {
+  const requests = await mockRevisionMonitor(page);
   await page.goto("/strategy_monitor");
   await expect(stockArticle(page)).toBeVisible();
   const date = page.getByLabel("決策日期", { exact: true });
   await date.selectOption("2026-10-12");
-  await page.getByLabel("紀錄版本", { exact: true }).selectOption("initial");
-  await expect(cashCondition(page).getByText("$25,000.00", { exact: true })).toBeVisible();
-  await date.selectOption("2026-10-08");
-  await expect(page.getByLabel("紀錄版本", { exact: true })).toHaveValue("");
   await expect(cashCondition(page).getByText("$24,998.87", { exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "前一次", exact: true }).click();
+  await expect(date).toHaveValue("2026-10-08");
+  await expect(cashCondition(page).getByText("$24,998.87", { exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: "前一次", exact: true })).toBeDisabled();
   await expect(page.getByText(makeInitialRevisionMonitor("2026-10-08").message, { exact: true })).toHaveCount(0);
-  await date.selectOption("2026-10-12");
-  await page.getByLabel("紀錄版本", { exact: true }).selectOption("initial");
-  await expect(cashCondition(page).getByText("$25,000.00", { exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "後一次", exact: true }).click();
+  await expect(date).toHaveValue("2026-10-12");
+  await expect(cashCondition(page).getByText("$24,998.87", { exact: true })).toBeVisible();
   await page.getByRole("button", { name: "最新決策", exact: true }).click();
   await expect(date).toHaveValue("");
   await expect(stockArticle(page)).toContainText("116.40");
+  await expect(page.getByText("原始決策快照")).toBeVisible();
+  await expect(page.getByRole("button", { name: "後一次", exact: true })).toBeDisabled();
   await date.selectOption("2026-10-12");
-  await expect(page.getByLabel("紀錄版本", { exact: true })).toHaveValue("");
   await expect(cashCondition(page).getByText("$24,998.87", { exact: true })).toBeVisible();
+  await expect(page.getByLabel("紀錄版本", { exact: true })).toHaveCount(0);
+  expect(requests).toContainEqual({ date: "2026-10-12", revision: "ledger-cashflow-v2" });
+  expect(requests).toContainEqual({ date: "2026-10-08", revision: "ledger-cashflow-v2" });
+  expect(requests.some((request) => request.revision === "initial")).toBe(false);
 });
 
-test("初版載入失敗時移除修正版圖表，仍可切回修正版", async ({ page }) => {
-  await mockRevisionMonitor(page, { initialStatus: 503 });
+test("修正版載入失敗顯示錯誤，重試也不退回初版或殘留其他日期圖表", async ({ page }) => {
+  const requests = await mockRevisionMonitor(page, { correctedStatus: 503 });
   await page.goto("/strategy_monitor");
   await expect(stockArticle(page)).toBeVisible();
   await page.getByLabel("決策日期", { exact: true }).selectOption("2026-10-12");
-  const revision = page.getByLabel("紀錄版本", { exact: true });
-  await expect(cashCondition(page).getByText("$24,998.87", { exact: true })).toBeVisible();
-  await revision.selectOption("initial");
-  await expect(page.getByRole("button", { name: "重新載入", exact: true })).toBeVisible();
+  const retry = page.getByRole("button", { name: "重新載入", exact: true });
+  await expect(retry).toBeVisible();
   await expect(stockArticle(page)).toHaveCount(0);
-  await expect(revision).toBeVisible();
-  await expect(revision).toHaveValue("initial");
+  await expect(page.getByLabel("紀錄版本", { exact: true })).toHaveCount(0);
   await expect(page.getByLabel("決策日期", { exact: true })).toHaveValue("2026-10-12");
-  await revision.selectOption("");
-  await expect(cashCondition(page).getByText("$24,998.87", { exact: true })).toBeVisible();
+  const failedRequests = requests.filter((request) => request.date === "2026-10-12").length;
+  await retry.click();
+  await expect.poll(() => requests.filter((request) => request.date === "2026-10-12").length).toBeGreaterThan(failedRequests);
+  await expect(retry).toBeEnabled();
+  await expect(stockArticle(page)).toHaveCount(0);
+  expect(requests.filter((request) => request.date === "2026-10-12").every((request) => request.revision === "ledger-cashflow-v2")).toBe(true);
+  expect(requests.some((request) => request.revision === "initial")).toBe(false);
+  await page.getByRole("button", { name: "最新決策", exact: true }).click();
+  await expect(stockArticle(page)).toContainText("116.40");
 });
 
-test("手機可切換紀錄版本且沒有水平溢位", async ({ page }, testInfo) => {
+test("手機只顯示修正版且沒有版本選單或水平溢位", async ({ page }, testInfo) => {
   await page.setViewportSize({ width: 375, height: 812 });
-  await mockRevisionMonitor(page);
+  const requests = await mockRevisionMonitor(page);
   await page.goto("/strategy_monitor");
   await expect(stockArticle(page)).toBeVisible();
   await page.getByLabel("決策日期", { exact: true }).selectOption("2026-10-12");
-  await page.getByLabel("紀錄版本", { exact: true }).selectOption("initial");
-  await expect(cashCondition(page).getByText("$25,000.00", { exact: true })).toBeVisible();
-  await expect(page.getByText("初版現金計算使用已截位單價；請以修正版為準。")).toBeVisible();
+  await expect(cashCondition(page).getByText("$24,998.87", { exact: true })).toBeVisible();
+  await expect(page.getByLabel("紀錄版本", { exact: true })).toHaveCount(0);
+  await expect(page.getByText(/歷史重建\s*·\s*修正版/).first()).toBeVisible();
+  await expect(page.getByRole("navigation", { name: "主導覽" }).getByRole("link", { name: "策略監控", exact: true })).toBeInViewport();
   const overflow = await page.evaluate(
     () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
   );
   expect(overflow).toBeLessThanOrEqual(1);
-  await page.screenshot({ path: testInfo.outputPath("strategy-initial-revision-mobile.png") });
+  expect(requests.some((request) => request.revision === "initial")).toBe(false);
+  await page.screenshot({ path: testInfo.outputPath("strategy-corrected-only-mobile.png") });
 });

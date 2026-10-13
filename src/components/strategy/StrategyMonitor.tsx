@@ -150,42 +150,37 @@ function StockPanel({ stock, date, basis, reconstructed }: { stock: StrategyMoni
 
 export function StrategyMonitor() {
   const [selectedDate, setSelectedDate] = useState("");
-  const [selectedRevision, setSelectedRevision] = useState("");
   const historyState = useStrategyMonitorHistory();
   const currentEntry = historyState.history?.entries.find((entry) => entry.decision_date === (selectedDate || historyState.history?.newest_date));
-  const requestRevision = selectedDate ? selectedRevision || currentEntry?.revision || "" : "";
+  // A stale index must not pin a date to its preserved initial revision.
+  const requestRevision = selectedDate && currentEntry?.revision === "ledger-cashflow-v2" ? currentEntry.revision : "";
   // An updated revision index invalidates automatic latest without pinning it to a stale index date.
   const latestVersion = !selectedDate && currentEntry?.revision ? `${currentEntry.decision_date}:${currentEntry.revision}` : "";
   const { snapshot, error, isLoading, isValidating, refresh } = useStrategyMonitor(selectedDate, requestRevision, latestVersion);
   const [selectedStock, setSelectedStock] = useState("all");
   const reload = () => { void refresh().catch(() => undefined); };
-  const chooseDate = (date: string) => { setSelectedDate(date); setSelectedRevision(""); };
-  const chooseRevision = (revision: string) => {
-    setSelectedDate(selectedDate || snapshot?.decision_date || historyState.history?.newest_date || "");
-    setSelectedRevision(revision);
-  };
-  const history = <StrategyHistory selectedDate={selectedDate} snapshotDate={snapshot?.decision_date} onSelect={chooseDate} selectedRevision={selectedRevision} onRevision={chooseRevision} historyState={historyState} />;
+  const history = <StrategyHistory selectedDate={selectedDate} snapshotDate={snapshot?.decision_date} onSelect={setSelectedDate} historyState={historyState} />;
   const wrap = (content: React.ReactNode) => <div className={styles.monitor}>{history}{content}</div>;
   if (isLoading && !snapshot) return wrap(<div role="status" aria-label="載入策略快照"><TableSkeleton rows={8} cols={2} /><p className={styles.loading}>正在取得{selectedDate || "最新"}決策…</p></div>);
   if (!snapshot) return wrap(<MessageState tone="error" title="無法載入策略監控" description={error instanceof ApiError && error.status === 404 ? selectedDate ? `${selectedDate} 尚無可讀取的決策紀錄，請選擇其他日期或稍後重試。` : "目前後端尚未提供策略監控，請更新後端服務後再試。" : `目前無法取得${selectedDate || "最新"}決策，請稍後重新載入或選擇其他日期。`} action={<Button onClick={reload} disabled={isValidating}>重新載入</Button>} />);
   if (snapshot.schema_version !== 1) return wrap(<MessageState tone="error" title="策略資料版本不相容" description="請更新前端後再查看此快照。" action={<Button onClick={reload}>重新載入</Button>} />);
   if (selectedDate && snapshot.decision_date !== selectedDate) return wrap(<MessageState tone="error" title="決策日期不符" description="後端回傳的紀錄與選取日期不一致，請稍後重試。" action={<Button onClick={reload}>重新載入</Button>} />);
-  if (requestRevision && (snapshot.revision || "initial") !== requestRevision) return wrap(<MessageState tone="error" title="紀錄版本不符" description="後端回傳的版本與選取版本不一致，請稍後重試。" action={<Button onClick={reload}>重新載入</Button>} />);
+  if (requestRevision && snapshot.revision !== requestRevision) return wrap(<MessageState tone="error" title="無法載入修正版" description="尚未取得此日期的修正版紀錄，請稍後重試。" action={<Button onClick={reload}>重新載入</Button>} />);
   const stocks = snapshot.stocks ?? [];
   const reconstructed = snapshot.source === "reconstructed";
   const corrected = snapshot.revision === "ledger-cashflow-v2";
   const provenanceTitle = corrected ? "沿用初版策略與歷史行情重建" : reconstructed ? "以回補當時策略與歷史行情重建" : "紀錄說明";
-  const initialWithCorrection = reconstructed && !corrected && historyState.history?.entries.some((entry) => entry.decision_date === snapshot.decision_date && entry.has_initial_revision);
+  // Stored snapshots are immutable; adapt the retired navigation hint only for display.
+  const warnings = snapshot.warnings?.map((warning) => warning.replace("初版保留，可切換查看。", "初版紀錄完整保留。"));
   const selection = stocks.some((stock) => stock.stock_id === selectedStock) ? selectedStock : "all";
   const visibleStocks = selection === "all" ? stocks : stocks.filter((stock) => stock.stock_id === selection);
   return (
     <div className={styles.monitor}>
       {history}
-      <div className={styles.toolbar}><span className={styles.liveLabel} data-source={snapshot.source}><i />{reconstructed ? `歷史重建${corrected ? " · 修正版" : initialWithCorrection ? " · 初版" : ""}` : "原始決策快照"}<span>· 唯讀</span></span>{snapshot.strategy_version ? <span className={styles.version} title={snapshot.strategy_version}>策略版本 {snapshot.strategy_version}</span> : null}</div>
+      <div className={styles.toolbar}><span className={styles.liveLabel} data-source={snapshot.source}><i />{reconstructed ? `歷史重建${corrected ? " · 修正版" : ""}` : "原始決策快照"}<span>· 唯讀</span></span>{snapshot.strategy_version ? <span className={styles.version} title={snapshot.strategy_version}>策略版本 {snapshot.strategy_version}</span> : null}</div>
       {error ? <div role="alert" className={styles.warning}>更新失敗，以下保留上次取得的快照。請檢查決策日期後，再試一次。</div> : null}
-      {initialWithCorrection ? <div role="alert" className={styles.warning}>初版現金計算使用已截位單價；請以修正版為準。此處保留當時的完整紀錄供對照。</div> : null}
-      {corrected ? <p className={styles.revisionNote}>現金依帳本保存的成交總額還原，沿用初版策略設定。初版紀錄仍可由上方切換查看。</p> : null}
-      {reconstructed || snapshot.warnings?.length ? <aside className={styles.provenance} aria-label="紀錄來源說明"><strong>{provenanceTitle}</strong>{reconstructed ? <p>此日期未保存完整的原始快照。圖表採用此紀錄保存的策略設定；成交結果依歷史帳本還原，可能與重建條件不同。此紀錄保存後不再隨策略改動。</p> : null}{snapshot.warnings?.length ? <details><summary>查看重建依據與資料限制</summary><ul>{snapshot.warnings.map((warning, index) => <li key={index}>{warning}</li>)}</ul></details> : null}</aside> : null}
+      {corrected ? <p className={styles.revisionNote}>現金依帳本保存的成交總額還原，沿用初版策略設定。</p> : null}
+      {reconstructed || warnings?.length ? <aside className={styles.provenance} aria-label="紀錄來源說明"><strong>{provenanceTitle}</strong>{reconstructed ? <p>此日期未保存完整的原始快照。圖表採用此紀錄保存的策略設定；成交結果依歷史帳本還原，可能與重建條件不同。此紀錄保存後不再隨策略改動。</p> : null}{warnings?.length ? <details><summary>查看重建依據與資料限制</summary><ul>{warnings.map((warning, index) => <li key={index}>{warning}</li>)}</ul></details> : null}</aside> : null}
       {snapshot.availability !== "available" || stocks.length === 0 ? <MessageState title={snapshot.decision_date ? `${snapshot.decision_date} · 決策資料不足` : "等待決策歷史"} description={snapshot.message || "後端正在整理歷史紀錄，完成後會自動顯示；新決策也會持續保存。"} /> : <>
         <section className={styles.overview} aria-label="決策摘要">
           <div className={styles.snapshotDate}><span className={styles.eyebrow}>{selectedDate ? "歷史決策" : "最新決策"}</span><strong className="num">{snapshot.decision_date}</strong><span>模擬帳本 · {reconstructed ? "歷史重建" : snapshot.execution_mode === "catchup" ? "歷史補算" : "每日決策"}</span></div>

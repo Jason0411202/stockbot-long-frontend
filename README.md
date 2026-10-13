@@ -88,8 +88,8 @@ API client 集中在 [`src/lib/api/`](src/lib/api/)；型別 [`types.ts`](src/li
 這是唯讀監控頁，切換日期與自動回補不會執行交易。缺資料會明確顯示原因。
 
 針對早期回補曾以截位單價反推現金的紀錄，後端會另存 `ledger-cashflow-v2` 修正版，採用帳本原始成交總額並沿用初版策略設定。
-初版資料完整保留；日期上方的「紀錄版本」可切換對照。預設顯示修正版，切換日期時恢復預設版本。
-單日 API 可加 `revision=initial` 或 `revision=ledger-cashflow-v2` 指定版本；版本與日期共用 SWR cache key，讀取失敗不沿用其他版本圖表。
+頁面只顯示修正版，不提供初版切換選單；初版資料仍完整保留於後端。
+單日 API 保留 `revision=initial` 或 `revision=ledger-cashflow-v2` 查詢契約。前端只指定已知修正版，其他日期讀取後端預設最新版本；版本與日期共用 SWR cache key，讀取失敗不退回初版圖表。
 
 ## 測試與檢查
 
